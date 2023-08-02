@@ -3,10 +3,12 @@
 
 version: '3.9'
 x-default-logging: &logging
-  driver: "json-file"
+  driver: "splunk"
   options:
-    max-size: "5m"
-    max-file: "2"
+    splunk-token: "${SPLUNK_HEC_TOKEN}"
+    splunk-url: "${SPLUNK_HEC_URL}"
+    splunk-index: "astronomyshop"
+    splunk-format: "raw"
 
 networks:
   default:
@@ -58,6 +60,7 @@ services:
         limits:
           memory: 300M
     restart: unless-stopped
+
     ports:
       - "${AD_SERVICE_PORT}"
     environment:

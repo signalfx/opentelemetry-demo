@@ -107,7 +107,7 @@ exporters:
   # Logs (can also be used to send traces)
   splunk_hec:
     token: "${SPLUNK_HEC_TOKEN}"
-    endpoint: "${SPLUNK_HEC_URL}"
+    endpoint: "${SPLUNK_HEC_URL}/services/collector"
     source: "otel"
     sourcetype: "otel"
     index: "astronomyshop"
