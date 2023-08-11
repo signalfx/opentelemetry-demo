@@ -3,12 +3,18 @@
 
 version: '3.9'
 x-default-logging: &logging
-  driver: "splunk"
+  driver: "fluentd"
   options:
-    splunk-token: "${SPLUNK_HEC_TOKEN}"
-    splunk-url: "${SPLUNK_HEC_URL}"
-    splunk-index: "astronomyshop"
-    splunk-format: "raw"
+    fluentd-address: "127.0.0.1:24224"
+    fluentd-async-connect: "true"
+    fluentd-retry-wait: 1s
+    fluentd-max-retries: 10
+#  driver: "splunk"
+#  options:
+#    splunk-token: "${SPLUNK_HEC_TOKEN}"
+#    splunk-url: "${SPLUNK_HEC_URL}"
+#    splunk-index: "astronomyshop"
+#    splunk-format: "raw"
 
 networks:
   default:
@@ -75,6 +81,7 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
+
 
   # Cart service
   cartservice:
@@ -667,7 +674,7 @@ services:
       - ./logs:/logs
       - ./checkpoint:/checkpoint
     ports:
-      - "4317"          # OTLP over gRPC receiver
+      - "4317:4317"     # OTLP over gRPC receiver
       - "4318:4318"     # OTLP over HTTP receiver
       - "9464"          # Prometheus exporter
       - "8888"          # metrics endpoint
@@ -678,6 +685,7 @@ services:
       - "9080"          # SignalFx forwarder
       - "9411"          # Zipkin endpoint
       - "9943"          # SignalFx receiver
+      - "8006:8006"     # Fluentforward receiver
     depends_on:
       - jaeger
     logging: *logging
@@ -757,6 +765,14 @@ services:
       - recommendationservice
       - shippingservice
       - quoteservice
+
+  fluentd:
+    image: fluent/fluentd:edge-debian
+    volumes:
+      - ./src/fluentd/conf:/fluentd/etc
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
 
   # Tracebased Tests
   traceBasedTests:
