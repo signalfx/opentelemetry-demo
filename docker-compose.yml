@@ -9,12 +9,6 @@ x-default-logging: &logging
     fluentd-async-connect: "true"
     fluentd-retry-wait: 1s
     fluentd-max-retries: 10
-#  driver: "splunk"
-#  options:
-#    splunk-token: "${SPLUNK_HEC_TOKEN}"
-#    splunk-url: "${SPLUNK_HEC_URL}"
-#    splunk-index: "astronomyshop"
-#    splunk-format: "raw"
 
 networks:
   default:
