@@ -55,12 +55,12 @@ receivers:
       - from: attributes.stream
         to: resource["log.io.stream"]
         type: move
-      - from: body.log
-        to: body
-        type: move
       - field: attributes.attrs.tag
         type: remove
         if: 'attributes?.attrs?.tag != nil'
+      - from: attributes.log
+        to: body
+        type: move
     poll_interval: 200ms
     start_at: beginning
 

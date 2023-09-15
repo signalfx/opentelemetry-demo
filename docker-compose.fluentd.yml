@@ -707,13 +707,13 @@ services:
       - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
     logging: *logging
 
-    fluentd:
-      image: fluent/fluentd:edge-debian
-      volumes:
-        - ./src/fluentd/conf:/fluentd/etc
-      ports:
-        - "24224:24224"
-        - "24224:24224/udp"
+  fluentd:
+    image: fluent/fluentd:edge-debian
+    volumes:
+      - ./src/fluentd/conf:/fluentd/etc
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
 
   # *****
   # Tests
