@@ -16,7 +16,7 @@ extensions:
     size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
 receivers:
   fluentforward:
-    endpoint: 0.0.0.0:8006
+    endpoint: 0.0.0.0:24224
   hostmetrics:
     collection_interval: 10s
     scrapers:
@@ -63,8 +63,8 @@ receivers:
           scrape_interval: 10s
           static_configs:
             - targets: ['localhost:8888']
-                # If you want to use the environment filter
-                # In the SignalFx dashboard
+              # If you want to use the environment filter
+              # In the SignalFx dashboard
               #labels:
               #environment: demo
           metric_relabel_configs:
@@ -91,6 +91,12 @@ processors:
   #- key: environment
   #value: "YOUR_ENVIRONMENT_NAME"
   #action: insert
+  resourcedetection:
+    detectors:
+      - env
+      - system
+    timeout: 10s
+    override: true
 
 exporters:
   # Traces
@@ -124,13 +130,13 @@ service:
   pipelines:
     traces:
       receivers: [jaeger, otlp, sapm, zipkin]
-      processors: [batch]
+      processors: [batch, resourcedetection]
       exporters: [ sapm, signalfx ]
     metrics:
       receivers: [otlp, signalfx, prometheus, hostmetrics]
-      processors: [batch]
+      processors: [batch, resourcedetection]
       exporters: [signalfx]
     logs:
       receivers: [otlp, signalfx, fluentforward]
-      processors: [batch]
+      processors: [batch, resourcedetection]
       exporters: [splunk_hec]

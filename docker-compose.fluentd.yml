@@ -679,7 +679,7 @@ services:
       - "9080"          # SignalFx forwarder
       - "9411"          # Zipkin endpoint
       - "9943"          # SignalFx receiver
-      - "8006:8006"   # Fluentforward receiver
+      - "24224:24224"   # Fluentforward receiver
     depends_on:
       - jaeger
     logging: *logging
@@ -706,14 +706,6 @@ services:
     ports:
       - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
     logging: *logging
-
-  fluentd:
-    image: fluent/fluentd:edge-debian
-    volumes:
-      - ./src/fluentd/conf:/fluentd/etc
-    ports:
-      - "24224:24224"
-      - "24224:24224/udp"
 
   # *****
   # Tests
