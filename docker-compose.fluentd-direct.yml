@@ -3,10 +3,12 @@
 
 version: '3.9'
 x-default-logging: &logging
-  driver: "json-file"
+  driver: "fluentd"
   options:
-    max-size: "5m"
-    max-file: "2"
+    fluentd-address: "localhost:24224"
+    fluentd-async: "true"
+    fluentd-retry-wait: 1s
+    fluentd-max-retries: 10
 
 networks:
   default:
@@ -58,6 +60,7 @@ services:
         limits:
           memory: 300M
     restart: unless-stopped
+
     ports:
       - "${AD_SERVICE_PORT}"
     environment:
@@ -72,6 +75,7 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
+
 
   # Cart service
   cartservice:
@@ -606,7 +610,7 @@ services:
   # ********************
   # Jaeger
   jaeger:
-    image: jaegertracing/all-in-one:1.48.0
+    image: jaegertracing/all-in-one
     container_name: jaeger
     command:
       - "--memory.max-traces"
@@ -621,7 +625,7 @@ services:
           memory: 300M
     restart: unless-stopped
     ports:
-      - "${JAEGER_SERVICE_PORT}"         # Jaeger UI
+      - "${JAEGER_SERVICE_PORT}"                    # Jaeger UI
       - "4317"                           # OTLP gRPC default port
     environment:
       - COLLECTOR_OTLP_ENABLED=true
@@ -630,7 +634,7 @@ services:
 
   # Grafana
   grafana:
-    image: grafana/grafana:10.1.0
+    image: grafana/grafana:9.4.7
     container_name: grafana
     deploy:
       resources:
@@ -645,30 +649,44 @@ services:
 
   # OpenTelemetry Collector
   otelcol:
-    image: otel/opentelemetry-collector-contrib:0.84.0
+    image: quay.io/signalfx/splunk-otel-collector:latest
     container_name: otel-col
+    environment:
+      - SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}
+      - SPLUNK_REALM=${SPLUNK_REALM}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
+      - SPLUNK_HEC_URL=${SPLUNK_HEC_URL}
+      - SPLUNK_MEMORY_TOTAL_MIB=${SPLUNK_MEMORY_TOTAL_MIB}
     deploy:
       resources:
         limits:
           memory: 125M
     restart: unless-stopped
-    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-observability.yml", "--config=/etc/otelcol-config-extras.yml" ]
+    command: [ "--config=/etc/splunk-otelcol-config.yml" ]
     volumes:
-      - ./src/otelcollector/otelcol-config.yml:/etc/otelcol-config.yml
-      - ./src/otelcollector/otelcol-observability.yml:/etc/otelcol-observability.yml
-      - ./src/otelcollector/otelcol-config-extras.yml:/etc/otelcol-config-extras.yml
+      - ./src/otelcollector/splunk-otelcol-config-fluentd-direct.yml:/etc/splunk-otelcol-config.yml
+      - ./logs:/logs
+      - ./checkpoint:/checkpoint
     ports:
-      - "4317"          # OTLP over gRPC receiver
+      - "4317:4317"     # OTLP over gRPC receiver
       - "4318:4318"     # OTLP over HTTP receiver
       - "9464"          # Prometheus exporter
       - "8888"          # metrics endpoint
+      - "13133"         # health check
+      - "14250"         # jaeger gRPC receiver
+      - "14268"         # jaeger thrift receiver
+      - "6060"          # http forward extension
+      - "9080"          # SignalFx forwarder
+      - "9411"          # Zipkin endpoint
+      - "9943"          # SignalFx receiver
+      - "24224:24224"   # Fluentforward receiver
     depends_on:
       - jaeger
     logging: *logging
 
   # Prometheus
   prometheus:
-    image: quay.io/prometheus/prometheus:v2.46.0
+    image: quay.io/prometheus/prometheus:v2.43.0
     container_name: prometheus
     command:
       - --web.console.templates=/etc/prometheus/consoles
@@ -762,7 +780,6 @@ services:
       - PRODUCT_CATALOG_SERVICE_ADDR
       - RECOMMENDATION_SERVICE_ADDR
       - SHIPPING_SERVICE_ADDR
-      - KAFKA_SERVICE_ADDR
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
@@ -790,10 +807,6 @@ services:
       shippingservice:
         condition: service_started
       quoteservice:
-        condition: service_started
-      accountingservice:
-        condition: service_started
-      frauddetectionservice:
         condition: service_started
 
   tracetest-server:
