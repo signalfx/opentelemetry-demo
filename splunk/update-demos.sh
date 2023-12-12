@@ -48,8 +48,48 @@ function update_otel_demo_docker {
     yq eval -i '.services.otelcol.ports += [ "9411" ]' "$DOCKER_COMPOSE_PATH"
     yq eval -i '.services.otelcol.ports += [ "9943" ]' "$DOCKER_COMPOSE_PATH"
 
-    echo "OpenTelemetry Demo update completed!"
+    echo "Completed updating docker-compose.yml for the OpenTelemetry demo app!"
+}
+
+function update_otel_demo_k8s {
+    K8S_PATH=${K8S_PATH:-"$SCRIPT_DIR/../kubernetes/opentelemetry-demo.yaml"}
+
+    # Download the YAML file
+    curl -L https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/kubernetes/opentelemetry-demo.yaml \
+        > "$K8S_PATH"
+
+    # delete the opentelemetry-demo-otelcol ServiceAccount, ConfigMap, Service, and Deployment objects
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-otelcol")' "$K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-otelcol")' "$K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-otelcol")' "$K8S_PATH"
+    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-otelcol")' "$K8S_PATH"
+
+    # delete the OTEL_COLLECTOR_NAME environment variable from all containers
+    yq eval -i 'del(.spec.template.spec.containers[].env[] | select(.name == "OTEL_COLLECTOR_NAME"))' "$K8S_PATH"
+
+    # add a NODE_IP environment variable for all containers
+    #      - name: NODE_IP
+    #        valueFrom:
+    #          fieldRef:
+    #            fieldPath: status.hostIP
+
+    yq eval -i '(.spec.template.spec.containers[].env) += { "name": "NODE_IP" }' "$K8S_PATH"
+    yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "NODE_IP") | .valueFrom.fieldRef.fieldPath) = "status.hostIP"' "$K8S_PATH"
+
+    # update the OTEL_EXPORTER_OTLP_ENDPOINT environment variable to use the NODE_IP
+    yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "OTEL_EXPORTER_OTLP_ENDPOINT") | .value) ="http://$(NODE_IP):4317"' "$K8S_PATH"
+
+    # update the OTEL_EXPORTER_OTLP_TRACES_ENDPOINT environment variable to use the NODE_IP
+    yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT") | .value) ="http://$(NODE_IP):4318/v1/traces"' "$K8S_PATH"
+
+    # append the deployment.environment resource attribute
+    # - name: OTEL_RESOURCE_ATTRIBUTES
+    #   value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development
+    yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "OTEL_RESOURCE_ATTRIBUTES") | .value) += ",deployment.environment=development"' "$K8S_PATH"
+
+    echo "Completed updating the kubernetes/opentelemetry-demo.yaml for the OpenTelemetry demo app!"
 }
 
 # ---- OpenTelemetry Demo Update ----
 update_otel_demo_docker
+update_otel_demo_k8s
