@@ -7,12 +7,10 @@ x-default-logging: &logging
   options:
     max-size: "5m"
     max-file: "2"
-
 networks:
   default:
     name: opentelemetry-demo
     driver: bridge
-
 services:
   # ******************
   # Core Demo Services
@@ -43,7 +41,6 @@ services:
       kafka:
         condition: service_healthy
     logging: *logging
-
   # AdService
   adservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-adservice
@@ -72,7 +69,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Cart service
   cartservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-cartservice
@@ -102,7 +98,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Checkout service
   checkoutservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-checkoutservice
@@ -150,7 +145,6 @@ services:
       kafka:
         condition: service_healthy
     logging: *logging
-
   # Currency service
   currencyservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-currencyservice
@@ -172,12 +166,11 @@ services:
     environment:
       - CURRENCY_SERVICE_PORT
       - OTEL_EXPORTER_OTLP_ENDPOINT
-      - OTEL_RESOURCE_ATTRIBUTES=${OTEL_RESOURCE_ATTRIBUTES},service.name=currencyservice   # The C++ SDK does not support OTEL_SERVICE_NAME
+      - OTEL_RESOURCE_ATTRIBUTES=${OTEL_RESOURCE_ATTRIBUTES},service.name=currencyservice # The C++ SDK does not support OTEL_SERVICE_NAME
     depends_on:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Email service
   emailservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-emailservice
@@ -203,7 +196,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Feature Flag service
   featureflagservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-featureflagservice
@@ -219,8 +211,8 @@ services:
           memory: 175M
     restart: unless-stopped
     ports:
-      - "${FEATURE_FLAG_SERVICE_PORT}"                                  # Feature Flag Service UI
-      - "${FEATURE_FLAG_GRPC_SERVICE_PORT}"                             # Feature Flag Service gRPC API
+      - "${FEATURE_FLAG_SERVICE_PORT}" # Feature Flag Service UI
+      - "${FEATURE_FLAG_GRPC_SERVICE_PORT}" # Feature Flag Service gRPC API
     environment:
       - FEATURE_FLAG_SERVICE_PORT
       - FEATURE_FLAG_GRPC_SERVICE_PORT
@@ -234,7 +226,6 @@ services:
       ffs_postgres:
         condition: service_healthy
     logging: *logging
-
   # Fraud Detection service
   frauddetectionservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frauddetectionservice
@@ -261,7 +252,6 @@ services:
       kafka:
         condition: service_healthy
     logging: *logging
-
   # Frontend
   frontend:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontend
@@ -315,7 +305,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Frontend Proxy (Envoy)
   frontendproxy:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-frontendproxy
@@ -356,7 +345,6 @@ services:
         condition: service_started
       grafana:
         condition: service_started
-
   # Load Generator
   loadgenerator:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-loadgenerator
@@ -389,7 +377,6 @@ services:
       frontend:
         condition: service_started
     logging: *logging
-
   # Payment service
   paymentservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-paymentservice
@@ -416,7 +403,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Product Catalog service
   productcatalogservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-productcatalogservice
@@ -444,7 +430,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Quote service
   quoteservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-quoteservice
@@ -472,7 +457,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Recommendation service
   recommendationservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-recommendationservice
@@ -485,7 +469,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 500M               # This is high to enable supporting the recommendationCache feature flag use case
+          memory: 500M # This is high to enable supporting the recommendationCache feature flag use case
     restart: unless-stopped
     ports:
       - "${RECOMMENDATION_SERVICE_PORT}"
@@ -507,7 +491,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # Shipping service
   shippingservice:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-shippingservice
@@ -534,7 +517,6 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-
   # ******************
   # Dependent Services
   # ******************
@@ -558,7 +540,6 @@ services:
       timeout: 5s
       retries: 5
     logging: *logging
-
   # Kafka used by Checkout, Accounting, and Fraud Detection services
   kafka:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-kafka
@@ -587,7 +568,6 @@ services:
       timeout: 10s
       retries: 10
     logging: *logging
-
   # Redis used by Cart service
   redis-cart:
     image: redis:7.2-alpine
@@ -601,8 +581,6 @@ services:
     ports:
       - "${REDIS_PORT}"
     logging: *logging
-
-
   # ********************
   # Telemetry Components
   # ********************
@@ -622,12 +600,11 @@ services:
           memory: 300M
     restart: unless-stopped
     ports:
-      - "${JAEGER_SERVICE_PORT}"         # Jaeger UI
-      - "4317"                           # OTLP gRPC default port
+      - "${JAEGER_SERVICE_PORT}" # Jaeger UI
+      - "4317" # OTLP gRPC default port
     environment:
       - METRICS_STORAGE_TYPE=prometheus
     logging: *logging
-
   # Grafana
   grafana:
     image: grafana/grafana:10.2.0
@@ -644,29 +621,42 @@ services:
     ports:
       - "${GRAFANA_SERVICE_PORT}"
     logging: *logging
-
   # OpenTelemetry Collector
   otelcol:
-    image: otel/opentelemetry-collector-contrib:0.88.0
+    image: quay.io/signalfx/splunk-otel-collector:latest
     container_name: otel-col
     deploy:
       resources:
         limits:
           memory: 125M
     restart: unless-stopped
-    command: [ "--config=/etc/otelcol-config.yml", "--config=/etc/otelcol-config-extras.yml" ]
+    command: ["--config=/etc/otelcol-config.yml"]
     volumes:
-      - ./src/otelcollector/otelcol-config.yml:/etc/otelcol-config.yml
-      - ./src/otelcollector/otelcol-config-extras.yml:/etc/otelcol-config-extras.yml
+      - ./splunk/otelcol-config.yml:/etc/otelcol-config.yml
+      - ./logs:/logs
+      - ./checkpoint:/checkpoint
     ports:
-      - "4317"          # OTLP over gRPC receiver
-      - "4318"          # OTLP over HTTP receiver
+      - "4317" # OTLP over gRPC receiver
+      - "4318" # OTLP over HTTP receiver
+      - "9464"
+      - "8888"
+      - "13133"
+      - "14250"
+      - "14268"
+      - "6060"
+      - "9080"
+      - "9411"
+      - "9943"
     depends_on:
       - jaeger
     logging: *logging
     environment:
       - ENVOY_PORT
-
+      - SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}
+      - SPLUNK_REALM=${SPLUNK_REALM}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
+      - SPLUNK_HEC_URL=${SPLUNK_HEC_URL}
+      - SPLUNK_MEMORY_TOTAL_MIB=${SPLUNK_MEMORY_TOTAL_MIB}
   # Prometheus
   prometheus:
     image: quay.io/prometheus/prometheus:v2.47.2
@@ -690,7 +680,6 @@ services:
     ports:
       - "${PROMETHEUS_SERVICE_PORT}:${PROMETHEUS_SERVICE_PORT}"
     logging: *logging
-
   opensearch:
     image: opensearchproject/opensearch:latest
     container_name: opensearch
@@ -712,7 +701,6 @@ services:
     ports:
       - "9200:9200"
     logging: *logging
-
   dataprepper:
     image: opensearchproject/data-prepper:latest
     volumes:
@@ -721,7 +709,6 @@ services:
     ports:
       - "21892"
     logging: *logging
-
   # *****
   # Tests
   # *****
@@ -743,7 +730,6 @@ services:
       - NODE_ENV=production
     depends_on:
       - frontend
-
   # Integration Tests
   integrationTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-integrationTests
@@ -774,7 +760,6 @@ services:
       - recommendationservice
       - shippingservice
       - quoteservice
-
   # Tracebased Tests
   traceBasedTests:
     image: ${IMAGE_NAME}:${IMAGE_VERSION}-traceBasedTests
@@ -833,14 +818,13 @@ services:
         condition: service_started
       frauddetectionservice:
         condition: service_started
-
   tracetest-server:
     image: kubeshop/tracetest:${TRACETEST_IMAGE_VERSION}
     platform: linux/amd64
     container_name: tracetest-server
     profiles:
       - tests
-      - odd          # Observabilty-Driven Development (ODD)
+      - odd # Observabilty-Driven Development (ODD)
     volumes:
       - type: bind
         source: ./test/tracetesting/tracetest-config.yaml
@@ -859,17 +843,16 @@ services:
       otelcol:
         condition: service_started
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "localhost:11633" ]
+      test: ["CMD", "wget", "--spider", "localhost:11633"]
       interval: 1s
       timeout: 3s
       retries: 60
-
   tracetest-postgres:
     image: postgres:16.0
     container_name: tracetest-postgres
     profiles:
       - tests
-      - odd          # Observabilty-Driven Development (ODD)
+      - odd # Observabilty-Driven Development (ODD)
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_USER: postgres
