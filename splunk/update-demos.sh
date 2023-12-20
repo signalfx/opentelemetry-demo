@@ -76,43 +76,24 @@ function update_otel_demo_k8s {
     yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
     yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
 
-    # delete the OTEL_COLLECTOR_NAME environment variable from all containers
-    yq eval -i 'del(.spec.template.spec.containers[].env[] | select(.name == "OTEL_COLLECTOR_NAME"))' "$SPLUNK_K8S_PATH"
-
-    # add a NODE_IP environment variable for all containers
+    # replace the OTEL_COLLECTOR_NAME environment variable
+    # with a NODE_IP environment variable for all containers
     #      - name: NODE_IP
     #        valueFrom:
     #          fieldRef:
     #            fieldPath: status.hostIP
 
+    # start by replacing the environment variable name
+    yq eval -i ' (.. | select(tag == "!!str")) |= sub("OTEL_COLLECTOR_NAME", "NODE_IP")' "$SPLUNK_K8S_PATH"
 
-    # used due to a yq issue with the below command to do the same thing
-    SEARCH_VAL=service.namespace=opentelemetry-demo
-    REPLACE_VAL='service.namespace=opentelemetry-demo \
-            - name: NODE_IP \
-              valueFrom: \
+    # then use sed to replace the value
+    # (yq was not used due to an issue that added extraneous elements to the file) 
+    SEARCH_VAL="value: 'opentelemetry-demo-otelcol'"
+    REPLACE_VAL='valueFrom: \
                 fieldRef: \
                   fieldPath: status.hostIP'
 
     sed -i '' "s/${SEARCH_VAL}/${REPLACE_VAL}/g" "$SPLUNK_K8S_PATH"
-
-#    yq eval -i '(.spec.template.spec.containers[].env) += {
-#      "name": "NODE_IP",
-#      "valueFrom": {
-#        "fieldRef": {
-#          "fieldPath": "status.hostIP"
-#        }
-#      }
-#    }
-#    ' "$SPLUNK_K8S_PATH"
-
-   # yq eval -i '(.spec.template.spec.containers[].env) += { "name": "NODE_IP" }' "$K8S_PATH"
-   # yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "NODE_IP") | .valueFrom.fieldRef.fieldPath) = "status.hostIP"' "$K8S_PATH"
-
-    # update the values of the OTEL_EXPORTER_OTLP_ENDPOINT and OTEL_EXPORTER_OTLP_TRACES_ENDPOINT environment variables
-    # to use the NODE_IP instead of OTEL_COLLECTOR_NAME
-    # Reference: https://stackoverflow.com/questions/70032588/use-yq-to-substitute-string-in-a-yaml-file
-    yq eval -i ' (.. | select(tag == "!!str")) |= sub("http://\$\(OTEL_COLLECTOR_NAME\):", "http://$(NODE_IP):")' "$SPLUNK_K8S_PATH"
 
     # append the deployment.environment resource attribute
     # - name: OTEL_RESOURCE_ATTRIBUTES
