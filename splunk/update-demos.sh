@@ -85,29 +85,39 @@ function update_otel_demo_k8s {
     #          fieldRef:
     #            fieldPath: status.hostIP
 
-    yq eval -i '(.spec.template.spec.containers[].env) += {
-      "name": "NODE_IP",
-      "valueFrom": {
-        "fieldRef": {
-          "fieldPath": "status.hostIP"
-        }
-      }
-    }
-    ' "$SPLUNK_K8S_PATH"
+
+    # used due to a yq issue with the below command to do the same thing
+    SEARCH_VAL=service.namespace=opentelemetry-demo
+    REPLACE_VAL='service.namespace=opentelemetry-demo \
+            - name: NODE_IP \
+              valueFrom: \
+                fieldRef: \
+                  fieldPath: status.hostIP'
+
+    sed -i '' "s/${SEARCH_VAL}/${REPLACE_VAL}/g" "$SPLUNK_K8S_PATH"
+
+#    yq eval -i '(.spec.template.spec.containers[].env) += {
+#      "name": "NODE_IP",
+#      "valueFrom": {
+#        "fieldRef": {
+#          "fieldPath": "status.hostIP"
+#        }
+#      }
+#    }
+#    ' "$SPLUNK_K8S_PATH"
 
    # yq eval -i '(.spec.template.spec.containers[].env) += { "name": "NODE_IP" }' "$K8S_PATH"
    # yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "NODE_IP") | .valueFrom.fieldRef.fieldPath) = "status.hostIP"' "$K8S_PATH"
 
-    # update the OTEL_EXPORTER_OTLP_ENDPOINT environment variable to use the NODE_IP
-    yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "OTEL_EXPORTER_OTLP_ENDPOINT") | .value) ="http://$(NODE_IP):4317"' "$SPLUNK_K8S_PATH"
-
-    # update the OTEL_EXPORTER_OTLP_TRACES_ENDPOINT environment variable to use the NODE_IP
-    yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT") | .value) ="http://$(NODE_IP):4318/v1/traces"' "$SPLUNK_K8S_PATH"
+    # update the values of the OTEL_EXPORTER_OTLP_ENDPOINT and OTEL_EXPORTER_OTLP_TRACES_ENDPOINT environment variables
+    # to use the NODE_IP instead of OTEL_COLLECTOR_NAME
+    # Reference: https://stackoverflow.com/questions/70032588/use-yq-to-substitute-string-in-a-yaml-file
+    yq eval -i ' (.. | select(tag == "!!str")) |= sub("http://\$\(OTEL_COLLECTOR_NAME\):", "http://$(NODE_IP):")' "$SPLUNK_K8S_PATH"
 
     # append the deployment.environment resource attribute
     # - name: OTEL_RESOURCE_ATTRIBUTES
     #   value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development
-    yq eval -i '(.spec.template.spec.containers[].env[] | select(.name == "OTEL_RESOURCE_ATTRIBUTES") | .value) += ",deployment.environment=development"' "$SPLUNK_K8S_PATH"
+    yq eval -i ' (.. | select(tag == "!!str")) |= sub("service.namespace=opentelemetry-demo", "service.namespace=opentelemetry-demo,deployment.environment=development")'  "$SPLUNK_K8S_PATH"
 
     echo "Completed updating the kubernetes/opentelemetry-demo.yaml for the OpenTelemetry demo app!"
 }

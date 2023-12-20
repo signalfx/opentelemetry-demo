@@ -12,10 +12,6 @@ metadata:
     app.kubernetes.io/version: "10.1.5"
   name: opentelemetry-demo-grafana
   namespace: otel-demo
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/jaeger/templates/allinone-sa.yaml
 apiVersion: v1
@@ -27,10 +23,6 @@ metadata:
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/version: "1.51.0"
     app.kubernetes.io/component: all-in-one
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/prometheus/templates/serviceaccount.yaml
 apiVersion: v1
@@ -45,10 +37,6 @@ metadata:
   name: opentelemetry-demo-prometheus-server
   namespace: otel-demo
   annotations: {}
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/serviceaccount.yaml
 apiVersion: v1
@@ -61,10 +49,6 @@ metadata:
     app.kubernetes.io/name: opentelemetry-demo
     app.kubernetes.io/version: "1.6.0"
     app.kubernetes.io/part-of: opentelemetry-demo
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/secret.yaml
 apiVersion: v1
@@ -81,10 +65,6 @@ data:
   admin-user: "YWRtaW4="
   admin-password: "YWRtaW4="
   ldap-toml: ""
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/configmap.yaml
 apiVersion: v1
@@ -152,10 +132,6 @@ data:
         path: /var/lib/grafana/dashboards/default
       orgId: 1
       type: file
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/prometheus/templates/cm.yaml
 apiVersion: v1
@@ -190,10 +166,6 @@ data:
     {}
   rules: |
     {}
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/grafana-dashboards.yaml
 apiVersion: v1
@@ -7627,10 +7599,6 @@ data:
       "version": 1,
       "weekStart": ""
     }
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/clusterrole.yaml
 kind: ClusterRole
@@ -7642,10 +7610,6 @@ metadata:
     app.kubernetes.io/version: "10.1.5"
   name: opentelemetry-demo-grafana-clusterrole
 rules: []
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/opentelemetry-collector/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -7666,10 +7630,6 @@ rules:
   - apiGroups: ["extensions"]
     resources: ["replicasets"]
     verbs: ["get", "list", "watch"]
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/prometheus/templates/clusterrole.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -7720,10 +7680,6 @@ rules:
       - "/metrics"
     verbs:
       - get
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/clusterrolebinding.yaml
 kind: ClusterRoleBinding
@@ -7742,10 +7698,6 @@ roleRef:
   kind: ClusterRole
   name: opentelemetry-demo-grafana-clusterrole
   apiGroup: rbac.authorization.k8s.io
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/opentelemetry-collector/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -7764,10 +7716,6 @@ subjects:
   - kind: ServiceAccount
     name: opentelemetry-demo-otelcol
     namespace: otel-demo
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/prometheus/templates/clusterrolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -7788,10 +7736,6 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: opentelemetry-demo-prometheus-server
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/role.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -7804,10 +7748,6 @@ metadata:
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/version: "10.1.5"
 rules: []
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/rolebinding.yaml
 apiVersion: rbac.authorization.k8s.io/v1
@@ -7827,10 +7767,6 @@ subjects:
   - kind: ServiceAccount
     name: opentelemetry-demo-grafana
     namespace: otel-demo
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/service.yaml
 apiVersion: v1
@@ -7852,9 +7788,6 @@ spec:
   selector:
     app.kubernetes.io/name: grafana
     app.kubernetes.io/instance: opentelemetry-demo
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/jaeger/templates/allinone-agent-svc.yaml
 apiVersion: v1
@@ -7888,9 +7821,6 @@ spec:
     app.kubernetes.io/name: jaeger
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: all-in-one
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/jaeger/templates/allinone-collector-svc.yaml
 apiVersion: v1
@@ -7927,9 +7857,6 @@ spec:
     app.kubernetes.io/name: jaeger
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: all-in-one
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/jaeger/templates/allinone-query-svc.yaml
 apiVersion: v1
@@ -7954,9 +7881,6 @@ spec:
     app.kubernetes.io/name: jaeger
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: all-in-one
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/prometheus/templates/service.yaml
 apiVersion: v1
@@ -7982,9 +7906,6 @@ spec:
     app.kubernetes.io/instance: opentelemetry-demo
   sessionAffinity: None
   type: "ClusterIP"
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8006,9 +7927,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-adservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8030,9 +7948,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-cartservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8054,9 +7969,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-checkoutservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8078,9 +7990,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-currencyservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8102,9 +8011,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-emailservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8129,9 +8035,6 @@ spec:
       targetPort: 8081
   selector:
     opentelemetry.io/name: opentelemetry-demo-featureflagservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8153,9 +8056,6 @@ spec:
       targetPort: 5432
   selector:
     opentelemetry.io/name: opentelemetry-demo-ffspostgres
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8177,9 +8077,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-frontend
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8201,9 +8098,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-frontendproxy
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8228,9 +8122,6 @@ spec:
       targetPort: 9093
   selector:
     opentelemetry.io/name: opentelemetry-demo-kafka
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8252,9 +8143,6 @@ spec:
       targetPort: 8089
   selector:
     opentelemetry.io/name: opentelemetry-demo-loadgenerator
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8276,9 +8164,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-paymentservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8300,9 +8185,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-productcatalogservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8324,9 +8206,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-quoteservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8348,9 +8227,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-recommendationservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8372,9 +8248,6 @@ spec:
       targetPort: 6379
   selector:
     opentelemetry.io/name: opentelemetry-demo-redis
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: v1
@@ -8396,9 +8269,6 @@ spec:
       targetPort: 8080
   selector:
     opentelemetry.io/name: opentelemetry-demo-shippingservice
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/deployment.yaml
 apiVersion: apps/v1
@@ -8497,10 +8367,6 @@ spec:
               value: /var/lib/grafana/plugins
             - name: GF_PATHS_PROVISIONING
               value: /etc/grafana/provisioning
-            - name: NODE_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
           livenessProbe:
             failureThreshold: 10
             httpGet:
@@ -8568,10 +8434,6 @@ spec:
               value: "false"
             - name: COLLECTOR_OTLP_ENABLED
               value: "true"
-            - name: NODE_IP
-              valueFrom:
-                fieldRef:
-                  fieldPath: status.hostIP
           image: jaegertracing/all-in-one:1.51.0
           imagePullPolicy: IfNotPresent
           name: jaeger
@@ -8704,11 +8566,6 @@ spec:
             - name: storage-volume
               mountPath: /data
               subPath: ""
-          env:
-            name: NODE_IP
-            valueFrom:
-              fieldRef:
-                fieldPath: status.hostIP
       dnsPolicy: ClusterFirst
       securityContext:
         fsGroup: 65534
@@ -9571,8 +9428,6 @@ spec:
               value: "false"
             - name: LOCUST_AUTOSTART
               value: "true"
-            - name: LOCUST_BROWSER_TRAFFIC_ENABLED
-              value: "false"
             - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
               value: python
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
@@ -9585,7 +9440,7 @@ spec:
                   fieldPath: status.hostIP
           resources:
             limits:
-              memory: 1Gi
+              memory: 120Mi
 ---
 # Source: opentelemetry-demo/templates/component.yaml
 apiVersion: apps/v1
@@ -9749,7 +9604,7 @@ spec:
             - name: OTEL_PHP_AUTOLOAD_ENABLED
               value: "true"
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
-              value: http://$(NODE_IP):4317
+              value: http://$(NODE_IP):4318
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development
             - name: NODE_IP
@@ -9928,7 +9783,7 @@ spec:
             - name: QUOTE_SERVICE_ADDR
               value: http://opentelemetry-demo-quoteservice:8080
             - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
-              value: http://$(NODE_IP):4318/v1/traces
+              value: http://$(NODE_IP):4317/v1/traces
             - name: OTEL_RESOURCE_ATTRIBUTES
               value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development
             - name: NODE_IP
@@ -9950,10 +9805,6 @@ metadata:
   name: opentelemetry-demo-grafana-test
   namespace: otel-demo
   annotations:
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/tests/test-configmap.yaml
 apiVersion: v1
@@ -9974,10 +9825,6 @@ data:
       code=$(wget --server-response --spider --timeout 90 --tries 10 ${url} 2>&1 | awk '/^  HTTP/{print $2}')
       [ "$code" == "200" ]
     }
-spec:
-  template:
-    spec:
-      containers: []
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/tests/test.yaml
 apiVersion: v1
@@ -10006,6 +9853,3 @@ spec:
       configMap:
         name: opentelemetry-demo-grafana-test
   restartPolicy: Never
-  template:
-    spec:
-      containers: []
