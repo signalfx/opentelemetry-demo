@@ -56,7 +56,7 @@ kind: ServiceAccount
 metadata:
   name: opentelemetry-demo
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/name: opentelemetry-demo
@@ -336,14 +336,14 @@ kind: ConfigMap
 metadata:
   name: opentelemetry-demo-grafana-dashboards
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/name: opentelemetry-demo
     app.kubernetes.io/version: "1.6.0"
     app.kubernetes.io/part-of: opentelemetry-demo
 data:
-  
+
   demo-dashboard.json: |-
     {
       "annotations": {
@@ -8132,7 +8132,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-adservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-adservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: adservice
@@ -8146,7 +8146,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-adservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8155,7 +8155,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-cartservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-cartservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: cartservice
@@ -8169,7 +8169,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-cartservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8178,7 +8178,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-checkoutservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-checkoutservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: checkoutservice
@@ -8192,7 +8192,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-checkoutservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8201,7 +8201,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-currencyservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-currencyservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: currencyservice
@@ -8215,7 +8215,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-currencyservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8224,7 +8224,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-emailservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-emailservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: emailservice
@@ -8238,7 +8238,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-emailservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8247,7 +8247,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-featureflagservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-featureflagservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: featureflagservice
@@ -8264,7 +8264,7 @@ spec:
       name: http
       targetPort: 8081
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-featureflagservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8273,7 +8273,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-ffspostgres
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-ffspostgres
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: ffspostgres
@@ -8287,7 +8287,7 @@ spec:
       name: postgres
       targetPort: 5432
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-ffspostgres
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8296,7 +8296,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-frontend
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-frontend
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: frontend
@@ -8310,7 +8310,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-frontend
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8319,7 +8319,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-frontendproxy
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-frontendproxy
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: frontendproxy
@@ -8333,7 +8333,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-frontendproxy
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8342,7 +8342,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-kafka
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-kafka
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: kafka
@@ -8359,7 +8359,7 @@ spec:
       name: controller
       targetPort: 9093
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-kafka
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8368,7 +8368,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-loadgenerator
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-loadgenerator
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: loadgenerator
@@ -8382,7 +8382,7 @@ spec:
       name: tcp-service
       targetPort: 8089
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-loadgenerator
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8391,7 +8391,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-paymentservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-paymentservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: paymentservice
@@ -8405,7 +8405,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-paymentservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8414,7 +8414,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-productcatalogservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-productcatalogservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: productcatalogservice
@@ -8428,7 +8428,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-productcatalogservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8437,7 +8437,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-quoteservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-quoteservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: quoteservice
@@ -8451,7 +8451,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-quoteservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8460,7 +8460,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-recommendationservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-recommendationservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: recommendationservice
@@ -8474,7 +8474,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-recommendationservice
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8483,7 +8483,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-redis
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-redis
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: redis
@@ -8497,7 +8497,7 @@ spec:
       name: redis
       targetPort: 6379
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-redis
 ---
 # Source: opentelemetry-demo/templates/component.yaml
@@ -8506,7 +8506,7 @@ kind: Service
 metadata:
   name: opentelemetry-demo-shippingservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-shippingservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: shippingservice
@@ -8520,7 +8520,7 @@ spec:
       name: tcp-service
       targetPort: 8080
   selector:
-    
+
     opentelemetry.io/name: opentelemetry-demo-shippingservice
 ---
 # Source: opentelemetry-demo/charts/grafana/templates/deployment.yaml
@@ -8554,7 +8554,7 @@ spec:
         checksum/secret: f37dc127378b75e32576182571ac9b3826d217955ddda163afa1fde86c1cc056
         kubectl.kubernetes.io/default-container: grafana
     spec:
-      
+
       serviceAccountName: opentelemetry-demo-grafana
       automountServiceAccountToken: true
       securityContext:
@@ -8776,7 +8776,7 @@ spec:
         component: standalone-collector
 
     spec:
-      
+
       serviceAccountName: opentelemetry-demo-otelcol
       securityContext:
         {}
@@ -8943,7 +8943,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-accountingservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-accountingservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: accountingservice
@@ -8954,12 +8954,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-accountingservice
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-accountingservice
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: accountingservice
@@ -9004,7 +9004,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-adservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-adservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: adservice
@@ -9015,12 +9015,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-adservice
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-adservice
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: adservice
@@ -9065,7 +9065,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-cartservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-cartservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: cartservice
@@ -9076,12 +9076,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-cartservice
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-cartservice
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: cartservice
@@ -9136,7 +9136,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-checkoutservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-checkoutservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: checkoutservice
@@ -9147,12 +9147,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-checkoutservice
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-checkoutservice
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: checkoutservice
@@ -9215,7 +9215,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-currencyservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-currencyservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: currencyservice
@@ -9226,12 +9226,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-currencyservice
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-currencyservice
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: currencyservice
@@ -9272,7 +9272,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-emailservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-emailservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: emailservice
@@ -9283,12 +9283,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-emailservice
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-emailservice
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: emailservice
@@ -9331,7 +9331,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-featureflagservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-featureflagservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: featureflagservice
@@ -9342,12 +9342,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-featureflagservice
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-featureflagservice
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: featureflagservice
@@ -9410,7 +9410,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-ffspostgres
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-ffspostgres
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: ffspostgres
@@ -9421,12 +9421,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-ffspostgres
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-ffspostgres
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: ffspostgres
@@ -9473,7 +9473,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-frauddetectionservice
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-frauddetectionservice
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: frauddetectionservice
@@ -9484,12 +9484,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-frauddetectionservice
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-frauddetectionservice
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: frauddetectionservice
@@ -9534,7 +9534,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-frontend
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-frontend
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: frontend
@@ -9545,12 +9545,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-frontend
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-frontend
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: frontend
@@ -9615,7 +9615,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-frontendproxy
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-frontendproxy
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: frontendproxy
@@ -9626,12 +9626,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-frontendproxy
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-frontendproxy
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: frontendproxy
@@ -9700,7 +9700,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-kafka
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-kafka
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: kafka
@@ -9711,12 +9711,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-kafka
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-kafka
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: kafka
@@ -9765,7 +9765,7 @@ kind: Deployment
 metadata:
   name: opentelemetry-demo-loadgenerator
   labels:
-    
+
     opentelemetry.io/name: opentelemetry-demo-loadgenerator
     app.kubernetes.io/instance: opentelemetry-demo
     app.kubernetes.io/component: loadgenerator
@@ -9776,12 +9776,12 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      
+
       opentelemetry.io/name: opentelemetry-demo-loadgenerator
   template:
     metadata:
       labels:
-        
+
         opentelemetry.io/name: opentelemetry-demo-loadgenerator
         app.kubernetes.io/instance: opentelemetry-demo
         app.kubernetes.io/component: loadgenerator
@@ -10251,3 +10251,4 @@ spec:
       configMap:
         name: opentelemetry-demo-grafana-test
   restartPolicy: Never
+  
