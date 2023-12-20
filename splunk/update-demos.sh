@@ -87,7 +87,7 @@ function update_otel_demo_k8s {
     yq eval -i ' (.. | select(tag == "!!str")) |= sub("OTEL_COLLECTOR_NAME", "NODE_IP")' "$SPLUNK_K8S_PATH"
 
     # then use sed to replace the value
-    # (yq was not used due to an issue that added extraneous elements to the file) 
+    # (yq was not used due to an issue that added extraneous elements to the file)
     SEARCH_VAL="value: 'opentelemetry-demo-otelcol'"
     REPLACE_VAL='valueFrom: \
                 fieldRef: \
