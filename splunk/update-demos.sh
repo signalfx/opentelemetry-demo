@@ -14,6 +14,26 @@ set -euo pipefail
 # Set default paths if environment variables are not set
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
+function update_root_readme {
+    ROOT_README_PATH=${ROOT_README_PATH:-"$SCRIPT_DIR/../README.md"}
+
+    # Download the latest README file from upstream
+    curl -L https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/README.md \
+        > "$ROOT_README_PATH"
+
+    # add a section to the root README file with a pointer to Splunk customizations
+    SEARCH_VAL="## Quick start"
+    REPLACE_VAL='## Splunk customizations \
+\
+A number of customizations have been made to use the demo application with Splunk Observability Cloud, which can be found in the \[\/splunk\](\.\/splunk) folder.  See \[this document\](\.\/splunk\/README.md) for details. \
+\
+## Quick start'
+
+    sed -i '' "s/${SEARCH_VAL}/${REPLACE_VAL}/g" "$ROOT_README_PATH"
+
+    echo "Completed updating the root README.md file for the OpenTelemetry demo app!"
+}
+
 function update_otel_demo_docker {
     DOCKER_COMPOSE_PATH=${DOCKER_COMPOSE_PATH:-"$SCRIPT_DIR/../docker-compose.yml"}
     SPLUNK_DOCKER_COMPOSE_PATH=${SPLUNK_DOCKER_COMPOSE_PATH:-"$SCRIPT_DIR/../splunk/docker-compose.yml"}
@@ -104,5 +124,6 @@ function update_otel_demo_k8s {
 }
 
 # ---- OpenTelemetry Demo Update ----
+update_root_readme
 update_otel_demo_docker
 update_otel_demo_k8s
