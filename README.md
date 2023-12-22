@@ -6,6 +6,7 @@
 [![Commits](https://img.shields.io/github/commits-since/open-telemetry/opentelemetry-demo/latest?color=ff69b4&include_prereleases)](https://github.com/open-telemetry/opentelemetry-demo/graphs/commit-activity)
 [![Downloads](https://img.shields.io/docker/pulls/otel/demo)](https://hub.docker.com/r/otel/demo)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?color=red)](https://github.com/open-telemetry/opentelemetry-demo/blob/main/LICENSE)
+[![Integration Tests](https://github.com/open-telemetry/opentelemetry-demo/actions/workflows/run-integration-tests.yml/badge.svg)](https://github.com/open-telemetry/opentelemetry-demo/actions/workflows/run-integration-tests.yml)
 
 ## Welcome to the OpenTelemetry Astronomy Shop Demo
 
@@ -32,6 +33,10 @@ guidance](./CONTRIBUTING.md).
 
 If you'd like to extend this demo or maintain a fork of it, read our
 [fork guidance](https://opentelemetry.io/docs/demo/forking/).
+
+## Splunk customizations 
+
+A number of customizations have been made to use the demo application with Splunk Observability Cloud, which can be found in the [/splunk](./splunk) folder.  See [this document](./splunk/README.md) for details. 
 
 ## Quick start
 
