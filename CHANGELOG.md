@@ -7,10 +7,52 @@ release.
 
 ## Unreleased
 
-* add env var for pinning trace-based test tool version
-  ([#1239](https://github.com/open-telemetry/opentelemetry-demo/pull/1239))
+* [grafana] update grafana to 10.2.3
+  ([#1332](https://github.com/open-telemetry/opentelemetry-demo/pull/1332))
+
+## 1.7.2
+
+* [cartservice] update .NET package to 1.7.0 release
+  ([#1326](https://github.com/open-telemetry/opentelemetry-demo/pull/1326))
+* [loadgenerator and recommendationservice] Update python base image
+  ([#1329](https://github.com/open-telemetry/opentelemetry-demo/pull/1329))
+
+## 1.7.1
+
+* [grafana] revert to 10.2.0
+* [cartservice] disable config reload
+  ([#1312](https://github.com/open-telemetry/opentelemetry-demo/pull/1312))
+* [cartservice] fixed cartServiceFailure feature flag
+  ([#1313](https://github.com/open-telemetry/opentelemetry-demo/pull/1313))
+* [accountingservice] Update dependencies and semconv
+* ([#1316](https://github.com/open-telemetry/opentelemetry-demo/pull/1316))
+* [featureflagservice] Allow setting initial feature flag values
+  ([#1319](https://github.com/open-telemetry/opentelemetry-demo/pull/1319))
+
+## 1.7.0
+
 * update PHP quoteservice to use 1.0.0
   ([#1236](https://github.com/open-telemetry/opentelemetry-demo/pull/1236))
+* Add ability to do probabilistic A/B testing with feature flags
+  ([#1237](https://github.com/open-telemetry/opentelemetry-demo/pull/1237))
+* add env var for pinning trace-based test tool version
+  ([#1239](https://github.com/open-telemetry/opentelemetry-demo/pull/1239))
+* [cartservice] Add .NET memory, CPU, and thread metrics
+  ([#1265](https://github.com/open-telemetry/opentelemetry-demo/pull/1265))
+* [cartservice] update .NET to .NET 8.0
+  ([#1272](https://github.com/open-telemetry/opentelemetry-demo/pull/1272))
+* update loadgenerator dependencies and the base image
+  ([#1274](https://github.com/open-telemetry/opentelemetry-demo/pull/1274))
+* [currencyservice]: update opentelemetry-cpp to 1.12.0
+  ([#1275](https://github.com/open-telemetry/opentelemetry-demo/pull/1275))
+* [currencyservice] bring back multistage build
+  ([#1276](https://github.com/open-telemetry/opentelemetry-demo/pull/1276))
+* fix env var for pinning trace-based test tool version
+  ([#1283](https://github.com/open-telemetry/opentelemetry-demo/pull/1283))
+* [accountingservice] Add additional attributes to Kafka spans
+  ([#1286](https://github.com/open-telemetry/opentelemetry-demo/pull/1286))
+* [shippingservice] update Rust OTel libraries to 0.21
+  ([#1287](https://github.com/open-telemetry/opentelemetry-demo/pull/1287))
 
 ## 1.6.0
 
