@@ -45,6 +45,10 @@
         "src/featureflagservice/assets/vendor/",
         "src/featureflagservice/priv/",
         "src/productcatalogservice/genproto/",
-        "internal/tools/"
+        "internal/tools/",
+        "splunk/update-demos.sh",
+        "splunk/otelcol-config-filelog.yml",
+        "splunk/otelcol-config-fluentd.yml",
+        "splunk/otelcol-config.yml"
     ]
   }

@@ -34,9 +34,11 @@ guidance](./CONTRIBUTING.md).
 If you'd like to extend this demo or maintain a fork of it, read our
 [fork guidance](https://opentelemetry.io/docs/demo/forking/).
 
-## Splunk customizations 
+## Splunk customizations
 
-A number of customizations have been made to use the demo application with Splunk Observability Cloud, which can be found in the [/splunk](./splunk) folder.  See [this document](./splunk/README.md) for details. 
+A number of customizations have been made to use the demo application with 
+Splunk Observability Cloud, which can be found in the [/splunk](./splunk) 
+folder.  See [this document](./splunk/README.md) for details.
 
 ## Quick start
 
