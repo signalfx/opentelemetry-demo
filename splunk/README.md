@@ -1,10 +1,11 @@
 <!-- markdownlint-disable-next-line -->
 
-## Welcome to the OpenTelemetry Astronomy Shop Demo
+# Welcome to the OpenTelemetry Astronomy Shop Demo
 
 This repository contains a fork of the OpenTelemetry Astronomy Shop, a microservice-based
 distributed system intended to illustrate the implementation of OpenTelemetry in
-a near real-world environment. It includes customizations for use with Splunk Observability Cloud.
+a near real-world environment. It includes customizations for use with Splunk
+Observability Cloud.
 
 ## Update Docker and Kubernetes Scripts
 
