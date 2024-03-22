@@ -80,16 +80,6 @@ receivers:
       processes:
       # System processes metrics, disabled by default
       # process:
-  jaeger:
-    protocols:
-      grpc:
-        endpoint: 0.0.0.0:14250
-      thrift_binary:
-        endpoint: 0.0.0.0:6832
-      thrift_compact:
-        endpoint: 0.0.0.0:6831
-      thrift_http:
-        endpoint: 0.0.0.0:14268
   otlp:
     protocols:
       grpc:
@@ -122,6 +112,10 @@ receivers:
   # https://github.com/signalfx/signalfx-istio-adapter
   zipkin:
     endpoint: 0.0.0.0:9411
+  smartagent/redis:
+    type: collectd/redis
+    endpoint: "redis-cart:6379"
+
 processors:
   batch:
   # Optional: If you have a different environment tag name
@@ -176,7 +170,7 @@ service:
 
   pipelines:
     traces:
-      receivers: [jaeger, otlp, sapm, zipkin]
+      receivers: [otlp, sapm, zipkin]
       processors: [batch, resourcedetection]
       exporters: [ sapm, signalfx ]
     metrics:
@@ -187,3 +181,11 @@ service:
       receivers: [otlp, signalfx, filelog]
       processors: [batch, resourcedetection]
       exporters: [splunk_hec]
+    metrics/additional-receivers:
+      exporters:
+        - signalfx
+      processors:
+        - batch
+        - resourcedetection
+      receivers:
+        - smartagent/redis

@@ -23,9 +23,11 @@ function update_root_readme {
 
     # add a section to the root README file with a pointer to Splunk customizations
     SEARCH_VAL="## Quick start"
-    REPLACE_VAL='## Splunk customizations \
+    REPLACE_VAL='## Splunk customizations\
 \
-A number of customizations have been made to use the demo application with Splunk Observability Cloud, which can be found in the \[\/splunk\](\.\/splunk) folder.  See \[this document\](\.\/splunk\/README.md) for details. \
+A number of customizations have been made to use the demo application with\
+Splunk Observability Cloud, which can be found in the \[\/splunk\](\.\/splunk)\
+folder.  See \[this document\](\.\/splunk\/README.md) for details.\
 \
 ## Quick start'
 
@@ -80,8 +82,6 @@ function update_otel_demo_docker {
     yq eval -i '.services.otelcol.ports += [ "9464" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
     yq eval -i '.services.otelcol.ports += [ "8888" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
     yq eval -i '.services.otelcol.ports += [ "13133" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.ports += [ "14250" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.ports += [ "14268" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
     yq eval -i '.services.otelcol.ports += [ "6060" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
     yq eval -i '.services.otelcol.ports += [ "9080" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
     yq eval -i '.services.otelcol.ports += [ "9411" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
