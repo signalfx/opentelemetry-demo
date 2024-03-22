@@ -5,9 +5,14 @@
 
 
 import json
+import os
 import random
 import uuid
+import logging
+import sys
+from pythonjsonlogger import jsonlogger
 from locust import HttpUser, task, between
+from locust_plugins.users.playwright import PlaywrightUser, pw, PageWithRetry, event
 
 from opentelemetry import context, baggage, trace
 from opentelemetry.metrics import set_meter_provider
@@ -21,6 +26,29 @@ from opentelemetry.instrumentation.jinja2 import Jinja2Instrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.instrumentation.system_metrics import SystemMetricsInstrumentor
 from opentelemetry.instrumentation.urllib3 import URLLib3Instrumentor
+from opentelemetry._logs import set_logger_provider
+from opentelemetry.exporter.otlp.proto.grpc._log_exporter import (
+    OTLPLogExporter,
+)
+from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
+from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
+from opentelemetry.sdk.resources import Resource
+from playwright.async_api import Route, Request
+
+logger_provider = LoggerProvider(resource=Resource.create(
+        {
+            "service.name": "loadgenerator",
+        }
+    ),)
+set_logger_provider(logger_provider)
+
+exporter = OTLPLogExporter(insecure=True)
+logger_provider.add_log_record_processor(BatchLogRecordProcessor(exporter))
+handler = LoggingHandler(level=logging.INFO, logger_provider=logger_provider)
+
+# Attach OTLP handler to locust logger
+logging.getLogger().addHandler(handler)
+logging.getLogger().setLevel(logging.INFO)
 
 exporter = OTLPMetricExporter(insecure=True)
 set_meter_provider(MeterProvider([PeriodicExportingMetricReader(exporter)]))
@@ -34,6 +62,7 @@ Jinja2Instrumentor().instrument()
 RequestsInstrumentor().instrument()
 SystemMetricsInstrumentor().instrument()
 URLLib3Instrumentor().instrument()
+logging.info("Instrumentation complete")
 
 categories = [
     "binoculars",
@@ -60,7 +89,6 @@ products = [
 
 people_file = open('people.json')
 people = json.load(people_file)
-
 
 class WebsiteUser(HttpUser):
     wait_time = between(1, 10)
@@ -130,3 +158,42 @@ class WebsiteUser(HttpUser):
         context.attach(ctx)
         self.index()
 
+
+browser_traffic_enabled = os.environ.get("LOCUST_BROWSER_TRAFFIC_ENABLED", "").lower() in ("true", "yes", "on")
+
+if browser_traffic_enabled:
+    class WebsiteBrowserUser(PlaywrightUser):
+        headless = True  # to use a headless browser, without a GUI
+
+        @task
+        @pw
+        async def open_cart_page_and_change_currency(self, page: PageWithRetry):
+            try:
+                page.on("console", lambda msg: print(msg.text))
+                await page.route('**/*', add_baggage_header)
+                await page.goto("/cart", wait_until="domcontentloaded")
+                await page.select_option('[name="currency_code"]', 'CHF')
+                await page.wait_for_timeout(2000)  # giving the browser time to export the traces
+            except:
+                pass
+
+        @task
+        @pw
+        async def add_product_to_cart(self, page: PageWithRetry):
+            try:
+                page.on("console", lambda msg: print(msg.text))
+                await page.route('**/*', add_baggage_header)
+                await page.goto("/", wait_until="domcontentloaded")
+                await page.click('p:has-text("Roof Binoculars")', wait_until="domcontentloaded")
+                await page.click('button:has-text("Add To Cart")', wait_until="domcontentloaded")
+                await page.wait_for_timeout(2000)  # giving the browser time to export the traces
+            except:
+                pass
+
+
+async def add_baggage_header(route: Route, request: Request):
+    headers = {
+        **request.headers,
+        'baggage': 'synthetic_request=true'
+    }
+    await route.continue_(headers=headers)

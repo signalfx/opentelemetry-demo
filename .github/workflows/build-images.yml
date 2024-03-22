@@ -21,6 +21,7 @@ on:
 
 jobs:
   build_and_push_images:
+    if: github.repository == 'open-telemetry/opentelemetry-demo'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -49,19 +50,11 @@ jobs:
             setup-qemu: true
           - file: ./src/currencyservice/Dockerfile
             tag_suffix: currencyservice
-            context: ./src/currencyservice
+            context: ./
             setup-qemu: true
           - file: ./src/emailservice/Dockerfile
             tag_suffix: emailservice
             context: ./src/emailservice
-            setup-qemu: true
-          # NOTE:
-          # https://github.com/open-telemetry/opentelemetry-demo/issues/956
-          # Until dedicated ARM runners are available for GHA we cannot upgrade
-          # OTP/Elixir versions. Please do not change the OTP/Elixir versions.
-          - file: ./src/featureflagservice/Dockerfile
-            tag_suffix: featureflagservice
-            context: ./
             setup-qemu: true
           - file: ./src/frontend/Dockerfile
             tag_suffix: frontend
@@ -109,10 +102,6 @@ jobs:
             setup-qemu: true
           - file: ./src/frontend/Dockerfile.cypress
             tag_suffix: frontend-tests
-            context: ./
-            setup-qemu: true
-          - file: ./test/Dockerfile
-            tag_suffix: integrationTests
             context: ./
             setup-qemu: true
 
@@ -170,6 +159,8 @@ jobs:
           push: ${{ inputs.push }}
           tags: |
             ${{ env.DOCKERHUB_REPO }}:${{ inputs.version }}-${{matrix.file_tag.tag_suffix }}
+            ${{ env.DOCKERHUB_REPO }}:latest-${{matrix.file_tag.tag_suffix }}
             ${{ env.GHCR_REPO }}:${{ inputs.version }}-${{ matrix.file_tag.tag_suffix }}
+            ${{ env.GHCR_REPO }}:latest-${{ matrix.file_tag.tag_suffix }}
           cache-from: type=gha
           cache-to: type=gha
