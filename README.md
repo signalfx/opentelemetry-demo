@@ -36,8 +36,8 @@ If you'd like to extend this demo or maintain a fork of it, read our
 
 ## Splunk customizations
 
-A number of customizations have been made to use the demo application with 
-Splunk Observability Cloud, which can be found in the [/splunk](./splunk) 
+A number of customizations have been made to use the demo application with
+Splunk Observability Cloud, which can be found in the [/splunk](./splunk)
 folder.  See [this document](./splunk/README.md) for details.
 
 ## Quick start
