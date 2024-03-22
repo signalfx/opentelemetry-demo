@@ -47,6 +47,19 @@ function update_otel_demo_docker {
 
     cp "$DOCKER_COMPOSE_PATH" "$SPLUNK_DOCKER_COMPOSE_PATH"
 
+    # delete containers that are not required
+    yq eval -i 'del(.services.grafana)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.jaeger)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.prometheus)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.opensearch)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.frontendTests)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.traceBasedTests)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.tracetest-server)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.tracetest-postgres)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.frontendproxy.depends_on.jaeger)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.frontendproxy.depends_on.grafana)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.otelcol.depends_on)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+
     # replace the OpenTelemetry collector image with the Splunk distribution
     yq eval -i '.services.otelcol.image = "quay.io/signalfx/splunk-otel-collector:latest"' "$SPLUNK_DOCKER_COMPOSE_PATH"
 
@@ -90,11 +103,41 @@ function update_otel_demo_k8s {
 
     cp "$K8S_PATH" "$SPLUNK_K8S_PATH"
 
-    # delete the opentelemetry-demo-otelcol ServiceAccount, ConfigMap, Service, and Deployment objects
+    # delete the opentelemetry-demo-otelcol objects
     yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
     yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
     yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
     yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
+
+    # delete the grafana objects
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-grafana-test")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Secret" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-grafana-test")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-grafana-dashboards")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ClusterRole" or .metadata.name != "opentelemetry-demo-grafana-clusterrole")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ClusterRoleBinding" or .metadata.name != "opentelemetry-demo-grafana-clusterrolebinding")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Role" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "RoleBinding" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Pod" or .metadata.name != "opentelemetry-demo-grafana-test")' "$SPLUNK_K8S_PATH"
+
+    # delete the jaeger objects
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-jaeger")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-jaeger-agent")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-jaeger-collector")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-jaeger-query")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-jaeger")' "$SPLUNK_K8S_PATH"
+
+    # delete the prometheus objects
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ClusterRole" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ClusterRoleBinding" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
 
     # replace the OTEL_COLLECTOR_NAME environment variable
     # with a NODE_IP environment variable for all containers
