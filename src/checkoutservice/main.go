@@ -17,6 +17,7 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.opentelemetry.io/otel/trace"
+	otelcodes "go.opentelemetry.io/otel/codes"
 
 	"github.com/IBM/sarama"
 	"github.com/google/uuid"
@@ -332,7 +333,7 @@ type orderPrep struct {
 func (cs *checkoutService) prepareOrderItemsAndShippingQuoteFromCart(ctx context.Context, userID, userCurrency string, address *pb.Address) (orderPrep, error) {
 
 	ctx, span := tracer.Start(ctx, "prepareOrderItemsAndShippingQuoteFromCart")
-	defer span.End()
+    defer span.End()
 
 	var out orderPrep
 	cartItems, err := cs.getUserCart(ctx, userID)
@@ -341,6 +342,9 @@ func (cs *checkoutService) prepareOrderItemsAndShippingQuoteFromCart(ctx context
 	}
 	orderItems, err := cs.prepOrderItems(ctx, cartItems, userCurrency)
 	if err != nil {
+        msg := fmt.Sprintf("Error: ProductCatalogService Fail Feature Flag Enabled")
+        span.SetStatus(otelcodes.Error, msg)
+        span.AddEvent(msg)
 		return out, fmt.Errorf("failed to prepare order: %+v", err)
 	}
 	shippingUSD, err := cs.quoteShipping(ctx, address, cartItems)
