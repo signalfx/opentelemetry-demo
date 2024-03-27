@@ -935,7 +935,7 @@ spec:
               value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development
           resources:
             limits:
-              memory: 100Mi
+              memory: 200Mi
           volumeMounts:
       volumes:
 ---
@@ -1212,7 +1212,7 @@ spec:
               value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development
           resources:
             limits:
-              memory: 200Mi
+              memory: 400Mi
           securityContext:
             runAsGroup: 1001
             runAsNonRoot: true
@@ -1297,7 +1297,7 @@ spec:
               value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development
           resources:
             limits:
-              memory: 50Mi
+              memory: 100Mi
           securityContext:
             runAsGroup: 101
             runAsNonRoot: true
@@ -1437,7 +1437,7 @@ spec:
               value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development
           resources:
             limits:
-              memory: 1Gi
+              memory: 1500Mi
           volumeMounts:
       volumes:
 ---

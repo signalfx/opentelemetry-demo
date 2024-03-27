@@ -139,6 +139,12 @@ function update_otel_demo_k8s {
     yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
     yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
 
+    # update the memory setting for various containers due to OOM issues
+    yq eval -i '(select(.spec.template.spec.containers) | .spec.template.spec.containers.[] | select(.name == "frontendproxy")).resources.limits.memory |= "100Mi" ' "$SPLUNK_K8S_PATH"
+    yq eval -i '(select(.spec.template.spec.containers) | .spec.template.spec.containers.[] | select(.name == "frontend")).resources.limits.memory |= "400Mi" ' "$SPLUNK_K8S_PATH"
+    yq eval -i '(select(.spec.template.spec.containers) | .spec.template.spec.containers.[] | select(.name == "loadgenerator")).resources.limits.memory |= "1500Mi" ' "$SPLUNK_K8S_PATH"
+    yq eval -i '(select(.spec.template.spec.containers) | .spec.template.spec.containers.[] | select(.name == "emailservice")).resources.limits.memory |= "200Mi" ' "$SPLUNK_K8S_PATH"
+
     # replace the OTEL_COLLECTOR_NAME environment variable
     # with a NODE_IP environment variable for all containers
     #      - name: NODE_IP
