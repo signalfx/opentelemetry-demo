@@ -112,9 +112,9 @@ receivers:
   # https://github.com/signalfx/signalfx-istio-adapter
   zipkin:
     endpoint: 0.0.0.0:9411
-  smartagent/redis:
-    type: collectd/redis
-    endpoint: "redis-cart:6379"
+  redis:
+    endpoint: redis-cart:6379
+    collection_interval: 10s
 
 processors:
   batch:
@@ -188,4 +188,4 @@ service:
         - batch
         - resourcedetection
       receivers:
-        - smartagent/redis
+        - redis
