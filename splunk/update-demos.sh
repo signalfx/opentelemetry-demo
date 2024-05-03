@@ -145,6 +145,9 @@ function update_otel_demo_k8s {
     yq eval -i '(select(.spec.template.spec.containers) | .spec.template.spec.containers.[] | select(.name == "loadgenerator")).resources.limits.memory |= "1500Mi" ' "$SPLUNK_K8S_PATH"
     yq eval -i '(select(.spec.template.spec.containers) | .spec.template.spec.containers.[] | select(.name == "emailservice")).resources.limits.memory |= "200Mi" ' "$SPLUNK_K8S_PATH"
 
+    # add a cpu limit for the load generator container due to excessive CPU usage
+    yq eval -i '(select(.spec.template.spec.containers) | .spec.template.spec.containers.[] | select(.name == "loadgenerator")).resources.limits.cpu |= "1" ' "$SPLUNK_K8S_PATH"
+
     # replace the OTEL_COLLECTOR_NAME environment variable
     # with a NODE_IP environment variable for all containers
     #      - name: NODE_IP
