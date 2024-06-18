@@ -114,6 +114,8 @@ exporters:
     sourcetype: "otel"
     index: "astronomyshop"
     profiling_data_enabled: false
+    tls:
+      insecure_skip_verify: false
 
 service:
   extensions: [health_check, http_forwarder, zpages]
