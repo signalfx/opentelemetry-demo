@@ -1,7 +1,6 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
-version: '3.9'
 x-default-logging: &logging
   driver: "json-file"
   options:
@@ -22,17 +21,17 @@ services:
     container_name: accounting-service
     build:
       context: ./
-      dockerfile: ./src/accountingservice/Dockerfile
+      dockerfile: ${ACCOUNTING_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-accountingservice
     deploy:
       resources:
         limits:
-          memory: 20M
+          memory: 120M
     restart: unless-stopped
     environment:
       - KAFKA_SERVICE_ADDR
-      - OTEL_EXPORTER_OTLP_ENDPOINT
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
       - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=accountingservice
@@ -48,7 +47,7 @@ services:
     container_name: ad-service
     build:
       context: ./
-      dockerfile: ./src/adservice/Dockerfile
+      dockerfile: ${AD_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-adservice
     deploy:
@@ -79,7 +78,7 @@ services:
     container_name: cart-service
     build:
       context: ./
-      dockerfile: ./src/cartservice/src/Dockerfile
+      dockerfile: ${CART_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-cartservice
     deploy:
@@ -93,13 +92,13 @@ services:
       - CART_SERVICE_PORT
       - FLAGD_HOST
       - FLAGD_PORT
-      - REDIS_ADDR
+      - VALKEY_ADDR
       - OTEL_EXPORTER_OTLP_ENDPOINT
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=cartservice
       - ASPNETCORE_URLS=http://*:${CART_SERVICE_PORT}
     depends_on:
-      redis-cart:
+      valkey-cart:
         condition: service_started
       otelcol:
         condition: service_started
@@ -112,7 +111,7 @@ services:
     container_name: checkout-service
     build:
       context: ./
-      dockerfile: ./src/checkoutservice/Dockerfile
+      dockerfile: ${CHECKOUT_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-checkoutservice
     deploy:
@@ -163,7 +162,7 @@ services:
     container_name: currency-service
     build:
       context: ./
-      dockerfile: ./src/currencyservice/Dockerfile
+      dockerfile: ${CURRENCY_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-currencyservice
     deploy:
@@ -187,7 +186,8 @@ services:
     image: ${IMAGE_NAME}:${DEMO_VERSION}-emailservice
     container_name: email-service
     build:
-      context: ./src/emailservice
+      context: ./
+      dockerfile: ${EMAIL_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-emailservice
     deploy:
@@ -207,35 +207,23 @@ services:
       otelcol:
         condition: service_started
     logging: *logging
-  flagd:
-    image: ghcr.io/open-feature/flagd:v0.9.0
-    container_name: flagd
-    environment:
-      - FLAGD_OTEL_COLLECTOR_URI=${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
-      - FLAGD_METRICS_EXPORTER=otel
-      - OTEL_RESOURCE_ATTRIBUTES
-      - OTEL_SERVICE_NAME=flagd
-    command: ["start", "--uri", "file:./etc/flagd/demo.flagd.json"]
-    ports:
-      - 8013
-    volumes:
-      - ./src/flagd:/etc/flagd
-    logging: *logging
   # Fraud Detection service
   frauddetectionservice:
     image: ${IMAGE_NAME}:${DEMO_VERSION}-frauddetectionservice
     container_name: frauddetection-service
     build:
       context: ./
-      dockerfile: ./src/frauddetectionservice/Dockerfile
+      dockerfile: ${FRAUD_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-frauddetectionservice
     deploy:
       resources:
         limits:
-          memory: 200M
+          memory: 300M
     restart: unless-stopped
     environment:
+      - FLAGD_HOST
+      - FLAGD_PORT
       - KAFKA_SERVICE_ADDR
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
       - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
@@ -255,13 +243,13 @@ services:
     container_name: frontend
     build:
       context: ./
-      dockerfile: ./src/frontend/Dockerfile
+      dockerfile: ${FRONTEND_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-frontend
     deploy:
       resources:
         limits:
-          memory: 200M
+          memory: 250M
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT}"
@@ -283,6 +271,8 @@ services:
       - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
       - WEB_OTEL_SERVICE_NAME=frontend-web
       - OTEL_COLLECTOR_HOST
+      - FLAGD_HOST
+      - FLAGD_PORT
     depends_on:
       adservice:
         condition: service_started
@@ -304,6 +294,8 @@ services:
         condition: service_started
       imageprovider:
         condition: service_started
+      flagd:
+        condition: service_started
     logging: *logging
   # Frontend Proxy (Envoy)
   frontendproxy:
@@ -311,7 +303,7 @@ services:
     container_name: frontend-proxy
     build:
       context: ./
-      dockerfile: src/frontendproxy/Dockerfile
+      dockerfile: ${FRONTEND_PROXY_DOCKERFILE}
     deploy:
       resources:
         limits:
@@ -336,10 +328,16 @@ services:
       - OTEL_COLLECTOR_PORT_HTTP
       - OTEL_RESOURCE_ATTRIBUTES
       - ENVOY_PORT
+      - FLAGD_HOST
+      - FLAGD_PORT
+      - FLAGD_UI_HOST
+      - FLAGD_UI_PORT
     depends_on:
       frontend:
         condition: service_started
       loadgenerator:
+        condition: service_started
+      flagd-ui:
         condition: service_started
   # Imageprovider
   imageprovider:
@@ -347,7 +345,7 @@ services:
     container_name: imageprovider
     build:
       context: ./
-      dockerfile: ./src/imageprovider/Dockerfile
+      dockerfile: ${IMAGE_PROVIDER_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-imageprovider
     deploy:
@@ -373,7 +371,7 @@ services:
     container_name: load-generator
     build:
       context: ./
-      dockerfile: ./src/loadgenerator/Dockerfile
+      dockerfile: ${LOAD_GENERATOR_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-loadgenerator
     deploy:
@@ -410,7 +408,7 @@ services:
     container_name: payment-service
     build:
       context: ./
-      dockerfile: ./src/paymentservice/Dockerfile
+      dockerfile: ${PAYMENT_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-paymentservice
     deploy:
@@ -440,7 +438,7 @@ services:
     container_name: product-catalog-service
     build:
       context: ./
-      dockerfile: ./src/productcatalogservice/Dockerfile
+      dockerfile: ${PRODUCT_CATALOG_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-productcatalogservice
     deploy:
@@ -470,7 +468,7 @@ services:
     container_name: quote-service
     build:
       context: ./
-      dockerfile: ./src/quoteservice/Dockerfile
+      dockerfile: ${QUOTE_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-quoteservice
     deploy:
@@ -497,7 +495,7 @@ services:
     container_name: recommendation-service
     build:
       context: ./
-      dockerfile: ./src/recommendationservice/Dockerfile
+      dockerfile: ${RECOMMENDATION_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-recommendationservice
     deploy:
@@ -532,7 +530,7 @@ services:
     container_name: shipping-service
     build:
       context: ./
-      dockerfile: ./src/shippingservice/Dockerfile
+      dockerfile: ${SHIPPING_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-shippingservice
     deploy:
@@ -555,19 +553,65 @@ services:
   # ******************
   # Dependent Services
   # ******************
+  # Flagd, feature flagging service
+  flagd:
+    image: ${FLAGD_IMAGE}
+    container_name: flagd
+    deploy:
+      resources:
+        limits:
+          memory: 50M
+    restart: unless-stopped
+    environment:
+      - FLAGD_OTEL_COLLECTOR_URI=${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_GRPC}
+      - FLAGD_METRICS_EXPORTER=otel
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=flagd
+    command: ["start", "--uri", "file:./etc/flagd/demo.flagd.json"]
+    ports:
+      - 8013
+    volumes:
+      - ./src/flagd:/etc/flagd
+    logging: *logging
+  # Flagd-ui, UI for configuring the feature flagging service
+  flagd-ui:
+    image: ${IMAGE_NAME}:${DEMO_VERSION}-flagd-ui
+    container_name: flagd-ui
+    build:
+      context: ./
+      dockerfile: ${FLAGD_UI_DOCKERFILE}
+    deploy:
+      resources:
+        limits:
+          memory: 150M
+    restart: unless-stopped
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://${OTEL_COLLECTOR_HOST}:${OTEL_COLLECTOR_PORT_HTTP}
+      - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      - OTEL_RESOURCE_ATTRIBUTES
+      - OTEL_SERVICE_NAME=flagd-ui
+    ports:
+      - "${FLAGD_UI_PORT}"
+    depends_on:
+      otelcol:
+        condition: service_started
+      flagd:
+        condition: service_started
+    volumes:
+      - ./src/flagd:/app/data
   # Kafka used by Checkout, Accounting, and Fraud Detection services
   kafka:
     image: ${IMAGE_NAME}:${DEMO_VERSION}-kafka
     container_name: kafka
     build:
       context: ./
-      dockerfile: ./src/kafka/Dockerfile
+      dockerfile: ${KAFKA_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-kafka
     deploy:
       resources:
         limits:
-          memory: 500M
+          memory: 600M
     restart: unless-stopped
     environment:
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
@@ -575,7 +619,7 @@ services:
       - OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
       - OTEL_RESOURCE_ATTRIBUTES
       - OTEL_SERVICE_NAME=kafka
-      - KAFKA_HEAP_OPTS=-Xmx250m -Xms250m
+      - KAFKA_HEAP_OPTS=-Xmx400m -Xms400m
     healthcheck:
       test: nc -z kafka 9092
       start_period: 10s
@@ -583,18 +627,18 @@ services:
       timeout: 10s
       retries: 10
     logging: *logging
-  # Redis used by Cart service
-  redis-cart:
-    image: ${REDIS_IMAGE}
-    container_name: redis-cart
-    user: redis
+  # Valkey used by Cart service
+  valkey-cart:
+    image: ${VALKEY_IMAGE}
+    container_name: valkey-cart
+    user: valkey
     deploy:
       resources:
         limits:
           memory: 20M
     restart: unless-stopped
     ports:
-      - "${REDIS_PORT}"
+      - "${VALKEY_PORT}"
     logging: *logging
   # OpenTelemetry Collector
   otelcol:
@@ -606,6 +650,7 @@ services:
           memory: 200M
     restart: unless-stopped
     command: ["--config=/etc/otelcol-config.yml"]
+    user: 0:0
     volumes:
       - ./splunk/otelcol-config.yml:/etc/otelcol-config.yml
       - ./logs:/logs
@@ -623,6 +668,10 @@ services:
     logging: *logging
     environment:
       - ENVOY_PORT
+      - HOST_FILESYSTEM
+      - OTEL_COLLECTOR_HOST
+      - OTEL_COLLECTOR_PORT_GRPC
+      - OTEL_COLLECTOR_PORT_HTTP
       - SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}
       - SPLUNK_REALM=${SPLUNK_REALM}
       - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
