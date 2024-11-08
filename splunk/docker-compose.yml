@@ -50,6 +50,8 @@ services:
       dockerfile: ${AD_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-adservice
+      args:
+        OTEL_JAVA_AGENT_VERSION: ${OTEL_JAVA_AGENT_VERSION}
     deploy:
       resources:
         limits:
@@ -165,6 +167,8 @@ services:
       dockerfile: ${CURRENCY_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-currencyservice
+      args:
+        OPENTELEMETRY_CPP_VERSION: ${OPENTELEMETRY_CPP_VERSION}
     deploy:
       resources:
         limits:
@@ -216,6 +220,8 @@ services:
       dockerfile: ${FRAUD_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-frauddetectionservice
+      args:
+        OTEL_JAVA_AGENT_VERSION: ${OTEL_JAVA_AGENT_VERSION}
     deploy:
       resources:
         limits:
@@ -608,6 +614,8 @@ services:
       dockerfile: ${KAFKA_SERVICE_DOCKERFILE}
       cache_from:
         - ${IMAGE_NAME}:${IMAGE_VERSION}-kafka
+      args:
+        OTEL_JAVA_AGENT_VERSION: ${OTEL_JAVA_AGENT_VERSION}
     deploy:
       resources:
         limits:
