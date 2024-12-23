@@ -8,12 +8,6 @@ extensions:
       # TODO: Ensure this is set properly
       endpoint: "https://api.${SPLUNK_REALM}.signalfx.com"
   zpages:
-  memory_ballast:
-    # In general, the ballast should be set to 1/3 of the collector's memory, the limit
-    # should be 90% of the collector's memory.
-    # The simplest way to specify the ballast size is set the value of SPLUNK_BALLAST_SIZE_MIB env variable.
-    # TODO: Ensure this is set properly
-    size_mib: ${SPLUNK_BALLAST_SIZE_MIB}
 receivers:
   fluentforward:
     endpoint: 0.0.0.0:24224
@@ -72,20 +66,21 @@ receivers:
 
 processors:
   batch:
-  # Optional: If you have a different environment tag name
-  # If this option is enabled it must be added to the pipeline section below
-  #attributes/copyfromexistingkey:
-  #actions:
-  #- key: environment
-  #from_attribute: YOUR_EXISTING_TAG_NAME
-  #action: upsert
-  # Optional: If you want to add an environment tag
-  # If this option is enabled it must be added to the pipeline section below
-  #attributes/newenvironment:
-  #actions:
-  #- key: environment
-  #value: "YOUR_ENVIRONMENT_NAME"
-  #action: insert
+
+  # Enabling the memory_limiter is strongly recommended for every pipeline.
+  # Configuration is based on the amount of memory allocated to the collector.
+  # For more information about memory limiter, see
+  # https://github.com/open-telemetry/opentelemetry-collector/blob/main/processor/memorylimiter/README.md
+  memory_limiter:
+    check_interval: 2s
+    limit_mib: ${SPLUNK_MEMORY_LIMIT_MIB}
+
+  resource/add_environment:
+    attributes:
+      - action: insert
+        value: test
+        key: deployment.environment
+
   resourcedetection:
     detectors:
       - env
@@ -95,11 +90,10 @@ processors:
 
 exporters:
   # Traces
-  sapm:
-    # TODO: Ensure this is set properly
-    access_token: "${SPLUNK_ACCESS_TOKEN}"
-    # TODO: Ensure this is set properly
-    endpoint: "https://ingest.${SPLUNK_REALM}.signalfx.com/v2/trace"
+  otlphttp:
+    traces_endpoint: "https://ingest.${SPLUNK_REALM}.signalfx.com/v2/trace/otlp"
+    headers:
+      "X-SF-Token": "${SPLUNK_ACCESS_TOKEN}"
   # Metrics
   signalfx:
     # TODO: Ensure this is set properly
@@ -126,21 +120,23 @@ service:
   pipelines:
     traces:
       receivers: [otlp, sapm, zipkin]
-      processors: [batch, resourcedetection]
-      exporters: [ sapm, signalfx ]
+      processors: [memory_limiter, batch, resourcedetection, resource/add_environment]
+      exporters: [ otlphttp, signalfx ]
     metrics:
       receivers: [otlp, signalfx, prometheus, hostmetrics]
-      processors: [batch, resourcedetection]
+      processors: [memory_limiter, batch, resourcedetection, resource/add_environment]
       exporters: [signalfx]
     logs:
       receivers: [otlp, signalfx, fluentforward]
-      processors: [batch, resourcedetection]
+      processors: [memory_limiter, batch, resourcedetection, resource/add_environment]
       exporters: [splunk_hec]
     metrics/additional-receivers:
       exporters:
         - signalfx
       processors:
+        - memory_limiter
         - batch
         - resourcedetection
+        - resource/add_environment
       receivers:
         - redis
