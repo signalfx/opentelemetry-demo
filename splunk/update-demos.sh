@@ -58,34 +58,34 @@ function update_otel_demo_docker {
     yq eval -i 'del(.services.traceBasedTests)' "$SPLUNK_DOCKER_COMPOSE_PATH"
     yq eval -i 'del(.services.tracetest-server)' "$SPLUNK_DOCKER_COMPOSE_PATH"
     yq eval -i 'del(.services.tracetest-postgres)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.frontendproxy.depends_on.jaeger)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.frontendproxy.depends_on.grafana)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.otelcol.depends_on)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.frontend-proxy.depends_on.jaeger)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.frontend-proxy.depends_on.grafana)' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.otel-collector.depends_on)' "$SPLUNK_DOCKER_COMPOSE_PATH"
 
     # replace the OpenTelemetry collector image with the Splunk distribution
-    yq eval -i '.services.otelcol.image = "quay.io/signalfx/splunk-otel-collector:latest"' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.image = "quay.io/signalfx/splunk-otel-collector:latest"' "$SPLUNK_DOCKER_COMPOSE_PATH"
 
     # add environment variables required by the Splunk distro of the OpenTelemetry collector
-    yq eval -i '.services.otelcol.environment += [ "SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.environment += [ "SPLUNK_REALM=${SPLUNK_REALM}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.environment += [ "SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.environment += [ "SPLUNK_HEC_URL=${SPLUNK_HEC_URL}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.environment += [ "SPLUNK_MEMORY_TOTAL_MIB=${SPLUNK_MEMORY_TOTAL_MIB}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_REALM=${SPLUNK_REALM}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_HEC_URL=${SPLUNK_HEC_URL}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_MEMORY_TOTAL_MIB=${SPLUNK_MEMORY_TOTAL_MIB}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
 
     # update the command used to launch the collector to point to the Splunk-specific config
-    yq eval -i '.services.otelcol.command[0] = "--config=/etc/otelcol-config.yml" ' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.otelcol.command[1])' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.command[0] = "--config=/etc/otelcol-config.yml" ' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i 'del(.services.otel-collector.command[1])' "$SPLUNK_DOCKER_COMPOSE_PATH"
 
-    yq eval -i '.services.otelcol.volumes = [ "./splunk/otelcol-config.yml:/etc/otelcol-config.yml", "./logs:/logs", "./checkpoint:/checkpoint" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.volumes = [ "./splunk/otelcol-config.yml:/etc/otelcol-config.yml", "./logs:/logs", "./checkpoint:/checkpoint" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
 
     # add ports used by the Splunk distro of the OpenTelemetry collector
-    yq eval -i '.services.otelcol.ports += [ "9464" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.ports += [ "8888" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.ports += [ "13133" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.ports += [ "6060" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.ports += [ "9080" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.ports += [ "9411" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otelcol.ports += [ "9943" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.ports += [ "9464" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.ports += [ "8888" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.ports += [ "13133" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.ports += [ "6060" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.ports += [ "9080" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.ports += [ "9411" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
+    yq eval -i '.services.otel-collector.ports += [ "9943" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
 
     echo "Completed updating docker-compose.yml for the OpenTelemetry demo app!"
 }
