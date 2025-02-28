@@ -10593,7 +10593,7 @@ spec:
               value: service.name=$(OTEL_SERVICE_NAME),service.namespace=opentelemetry-demo,deployment.environment=development,service.version=2.0.0
           resources:
             limits:
-              memory: 75Mi
+              memory: 150Mi
           volumeMounts:
             - mountPath: /app/data
               name: config-rw
