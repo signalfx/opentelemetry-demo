@@ -103,41 +103,41 @@ function update_otel_demo_k8s {
 
     cp "$K8S_PATH" "$SPLUNK_K8S_PATH"
 
-    # delete the opentelemetry-demo-otelcol objects
-    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-otelcol")' "$SPLUNK_K8S_PATH"
+    # delete the otel-collector objects
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "otel-collector")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "otel-collector")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "otel-collector")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "otel-collector")' "$SPLUNK_K8S_PATH"
 
     # delete the grafana objects
-    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-grafana-test")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Secret" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-grafana-test")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-grafana-dashboards")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ClusterRole" or .metadata.name != "opentelemetry-demo-grafana-clusterrole")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ClusterRoleBinding" or .metadata.name != "opentelemetry-demo-grafana-clusterrolebinding")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Role" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "RoleBinding" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-grafana")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Pod" or .metadata.name != "opentelemetry-demo-grafana-test")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "grafana-test")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Secret" or .metadata.name != "grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "grafana-test")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "grafana-dashboards")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ClusterRole" or .metadata.name != "grafana-clusterrole")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ClusterRoleBinding" or .metadata.name != "grafana-clusterrolebinding")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Role" or .metadata.name != "grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "RoleBinding" or .metadata.name != "grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "grafana")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Pod" or .metadata.name != "grafana-test")' "$SPLUNK_K8S_PATH"
 
     # delete the jaeger objects
-    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-jaeger")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-jaeger-agent")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-jaeger-collector")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-jaeger-query")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-jaeger")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "jaeger")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "jaeger-agent")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "jaeger-collector")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "jaeger-query")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "jaeger")' "$SPLUNK_K8S_PATH"
 
     # delete the prometheus objects
-    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ClusterRole" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "ClusterRoleBinding" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Service" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
-    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "opentelemetry-demo-prometheus-server")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ServiceAccount" or .metadata.name != "prometheus")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ConfigMap" or .metadata.name != "prometheus")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ClusterRole" or .metadata.name != "prometheus")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "ClusterRoleBinding" or .metadata.name != "prometheus")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Service" or .metadata.name != "prometheus")' "$SPLUNK_K8S_PATH"
+    yq eval -i 'select(.kind != "Deployment" or .metadata.name != "prometheus")' "$SPLUNK_K8S_PATH"
 
     # update the memory setting for various containers due to OOM issues
     yq eval -i '(select(.spec.template.spec.containers) | .spec.template.spec.containers.[] | select(.name == "frontendproxy")).resources.limits.memory |= "100Mi" ' "$SPLUNK_K8S_PATH"
@@ -162,7 +162,7 @@ function update_otel_demo_k8s {
 
     # then use sed to replace the value
     # (yq was not used due to an issue that added extraneous elements to the file)
-    SEARCH_VAL="value: 'opentelemetry-demo-otelcol'"
+    SEARCH_VAL="value: otel-collector"
     REPLACE_VAL='valueFrom: \
                 fieldRef: \
                   fieldPath: status.hostIP'
