@@ -1,4 +1,4 @@
 #!/bin/bash
 
-TOKEN="Tmz4Z4DAq_RpwWjz6UkciQ"
+TOKEN="XXXXXXXXXXXXXXXX"
 GIT_REPO="https://github.com/knakagami/custom-opentelemetry-demo"
