@@ -29,7 +29,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/contrib/instrumentation/runtime"
 	"go.opentelemetry.io/otel"
-	otelcodes "go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/propagation"
