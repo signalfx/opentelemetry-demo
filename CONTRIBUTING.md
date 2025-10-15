@@ -16,8 +16,9 @@ We meet every other Wednesday at 8:00 PT. The schedule may change based on
 contributors' availability. Check the [OpenTelemetry Community Calendar](https://github.com/open-telemetry/community?tab=readme-ov-file#special-interest-groups)
 for specific dates and Zoom links.
 
-Meeting notes are available
-[here](https://docs.google.com/document/d/16f-JOjKzLgWxULRxY8TmpM_FjlI1sthvKurnqFz9x98/edit).
+See the
+[public meeting notes](https://docs.google.com/document/d/16f-JOjKzLgWxULRxY8TmpM_FjlI1sthvKurnqFz9x98/edit)
+for a summary description of past meetings.
 For edit access, ask in our
 [Slack channel](https://cloud-native.slack.com/archives/C03B4CWV4DA).
 
@@ -296,13 +297,14 @@ Maintainers can create a new release when desired by following these steps.
    notes.
 3. After images for the new release are built and published, create a new Pull
    Request that updates the `CHANGELOG.md` with the new version leaving the
-   `Unreleased` section for the next release.
+   `Unreleased` section for the next release. Merge the Pull Request.
 4. Create a new Pull Request to update the deployment of the demo in the
    [OpenTelemetry Helm
    Charts](https://github.com/open-telemetry/opentelemetry-helm-charts) repo.
+   Merge the Pull Request.
 5. After the Helm chart is released, create a new Pull Request which updates the
-   Demo's Kubernetes manifest by running `make generate-kubernetes-manifests`
-   and committing the changes.
+   Demo's Kubernetes manifest by running `make generate-kubernetes-manifests`.
+   Merge the Pull Request.
 
 [docs]: https://opentelemetry.io/docs/demo/
 
