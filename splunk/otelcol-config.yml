@@ -34,8 +34,6 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
-  sapm:
-    endpoint: 0.0.0.0:7276
   signalfx:
     endpoint: 0.0.0.0:9943
   # This section is used to collect OpenTelemetry metrics
@@ -120,7 +118,7 @@ service:
 
   pipelines:
     traces:
-      receivers: [otlp, sapm, zipkin]
+      receivers: [otlp, zipkin]
       processors: [memory_limiter, batch, resourcedetection, resource/add_environment]
       exporters: [ otlphttp, signalfx ]
     metrics:
