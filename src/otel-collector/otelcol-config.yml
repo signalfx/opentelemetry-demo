@@ -1,6 +1,13 @@
 # Copyright The OpenTelemetry Authors
 # SPDX-License-Identifier: Apache-2.0
 
+# Base collector configuration: receivers, processors, and pipelines.
+# Exports only to the debug exporter by default.
+# Layer additional configs on top with --config to add exporters:
+#   otelcol-config-full.yml        adds Kafka and PostgreSQL metric receivers
+#   otelcol-config-observability.yml  adds observability exporters and OpAMP status reporting
+#   otelcol-config-extras.yml      extras/customizations (empty stub)
+
 receivers:
   otlp:
     protocols:
@@ -12,7 +19,11 @@ receivers:
           allowed_origins:
             - "http://*"
             - "https://*"
-  httpcheck/frontend-proxy:
+          allowed_headers:
+            - "content-type"
+            - "traceparent"
+            - "baggage"
+  http_check/frontend-proxy:
     targets:
       - endpoint: http://${env:FRONTEND_PROXY_ADDR}
   nginx:
@@ -20,12 +31,29 @@ receivers:
     collection_interval: 10s
   docker_stats:
     endpoint: unix:///var/run/docker.sock
-    # https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/44511
-    api_version: "1.44"
+    metrics:
+      container.blockio.io_serviced_recursive:
+        enabled: true
+      container.cpu.usage.system:
+        enabled: true
+      container.memory.hierarchical_memory_limit:
+        enabled: true
+      container.memory.rss:
+        enabled: true
+      container.network.io.usage.rx_packets:
+        enabled: true
+      container.network.io.usage.tx_packets:
+        enabled: true
+      container.uptime:
+        enabled: true
+  redis:
+    endpoint: "valkey-cart:6379"
+    username: "valkey"
+    collection_interval: 10s
   postgresql:
     endpoint: ${POSTGRES_HOST}:${POSTGRES_PORT}
-    username: root
-    password: ${POSTGRES_PASSWORD}
+    username: monitoring_user
+    password: ${env:POSTGRES_MONITORING_PASSWORD}
     metrics:
       postgresql.blks_hit:
         enabled: true
@@ -45,19 +73,22 @@ receivers:
         enabled: true
     tls:
       insecure: true
-  redis:
-    endpoint: "valkey-cart:6379"
-    username: "valkey"
-    collection_interval: 10s
+  # Scrape a Prometheus `/metrics` endpoint exposed by the ad service.
+  # See: https://opentelemetry.io/docs/demo/services/ad/#bridging-non-otel-custom-metrics-prometheus-client-library
+  prometheus/ad:
+    config:
+      scrape_configs:
+        - job_name: ad
+          scrape_interval: 10s
+          static_configs:
+            - targets: ["ad:${env:AD_PROMETHEUS_PORT}"]
   # Host metrics
-  hostmetrics:
+  host_metrics:
     root_path: /hostfs
     scrapers:
       cpu:
         metrics:
           system.cpu.utilization:
-            enabled: true
-          system.cpu.logical.count:
             enabled: true
       disk:
       load:
@@ -107,85 +138,134 @@ receivers:
       network:
       paging:
         metrics:
-          system.paging.usage:
+          system.paging.utilization:
             enabled: true
-
       processes:
       process:
         mute_process_exe_error: true
         mute_process_io_error: true
         mute_process_user_error: true
       system:
-        metrics:
-          system.uptime:
-            enabled: true
+
 exporters:
   debug:
-  otlp:
-    endpoint: "jaeger:4317"
-    tls:
-      insecure: true
-    sending_queue:
-      batch:
-  otlphttp/prometheus:
-    endpoint: "http://prometheus:9090/api/v1/otlp"
-    tls:
-      insecure: true
-    sending_queue:
-      batch:
-  opensearch:
-    logs_index: otel-logs
-    logs_index_time_format: "yyyy-MM-dd"
-    http:
-      endpoint: "http://opensearch:9200"
-      tls:
-        insecure: true
-    sending_queue:
-      # Explicitly set due to bug: https://github.com/open-telemetry/opentelemetry-collector-contrib/issues/45016
-      num_consumers: 10
-      queue_size: 1000
-      batch:
+
 processors:
   memory_limiter:
     check_interval: 5s
     limit_percentage: 80
     spike_limit_percentage: 25
-  resourcedetection:
+  resource_detection:
     detectors: [env, docker, system]
-  transform:
+    system:
+      hostname_sources: ["os"]
+      resource_attributes:
+        host.arch:
+          enabled: true
+        host.cpu.vendor.id:
+          enabled: true
+        host.cpu.family:
+          enabled: true
+        host.cpu.model.id:
+          enabled: true
+        host.cpu.model.name:
+          enabled: true
+        host.cpu.stepping:
+          enabled: true
+        host.cpu.cache.l2.size:
+          enabled: true
+        os.description:
+          enabled: true
+  filter/sanitize_profiles:
+    error_mode: ignore
+    profiles:
+      profile:
+        - 'IsMatch(resource.attributes["service.name"], "containerd-shim-.*")'
+
+  transform/sanitize_logs:
+    error_mode: ignore
+    log_statements:
+      - context: scope
+        statements:
+          # Rename flat "otelcol.signal" scope attribute to prevent mapping
+          # conflict with the dotted "otelcol.signal.output" attribute.
+          # Upstream Issue: https://github.com/open-telemetry/opentelemetry-collector/issues/15221
+          - set(attributes["otelcol_signal"], attributes["otelcol.signal"]) where attributes["otelcol.signal"] != nil and not IsMap(attributes["otelcol.signal"])
+          - delete_key(attributes, "otelcol.signal") where attributes["otelcol_signal"] != nil
+  gen_ai_normalizer:
+    sources:
+      - name: openllmetry
+
+  transform/sanitize_spans:
     error_mode: ignore
     trace_statements:
       - context: span
         statements:
-          # could be removed when https://github.com/vercel/next.js/pull/64852 is fixed upstream
-          - replace_pattern(name, "\\?.*", "")
-          - replace_match(name, "GET /api/products/*", "GET /api/products/{productId}")
+          - set_semconv_span_name("1.43.0", "original_span_name")
+
+  # Demo: redact sensitive attributes before export. Collector-side redaction is
+  # a fallback -- prefer not collecting sensitive data in the first place.
+  #
+  # An alternative is the purpose-built redaction processor (commented out below).
+  # It is fail-closed: with allow_all_keys=false it drops every attribute not in
+  # allowed_keys, which would strip attributes across this shared gateway pipeline.
+  # To try it, uncomment, set REDACTION_HMAC_KEY, and add `redaction` to the
+  # traces pipeline processors below.
+  # redaction:
+  #   allow_all_keys: true
+  #   # Hash values matching a credit card number (13-16 digits, optional
+  #   # dashes/spaces) instead of exporting them in the clear.
+  #   blocked_values:
+  #     - "\\d{4}[- ]?\\d{4}[- ]?\\d{4}[- ]?\\d{1,4}"
+  #   hash_function: hmac-sha256
+  #   hmac_key: ${env:REDACTION_HMAC_KEY}
+  #   summary: debug
+  transform/redact_sensitive_data:
+    error_mode: ignore
+    trace_statements:
+      - context: span
+        statements:
+          - delete_key(attributes, "demo.payment.card_cvv") where attributes["demo.payment.card_cvv"] != nil
+          - set(attributes["user.hash"], SHA256(attributes["user.email"])) where attributes["user.email"] != nil
+          - delete_key(attributes, "user.email") where attributes["user.email"] != nil
+          # Keep only the last four digits, e.g. 4432-8015-6152-0454 -> ****-****-****-0454
+          - replace_pattern(attributes["demo.payment.card_number"], "^\\d{4}-\\d{4}-\\d{4}-", "****-****-****-") where attributes["demo.payment.card_number"] != nil
 
 connectors:
-  spanmetrics:
+  span_metrics:
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [resourcedetection, memory_limiter, transform]
-      exporters: [otlp, debug, spanmetrics]
+      processors: [resource_detection, memory_limiter, transform/sanitize_spans, gen_ai_normalizer, transform/redact_sensitive_data]
+      exporters: [debug, span_metrics]
     metrics:
-      receivers: [docker_stats, httpcheck/frontend-proxy, hostmetrics, nginx, otlp, postgresql, redis, spanmetrics]
-      processors: [resourcedetection, memory_limiter]
-      exporters: [otlphttp/prometheus, debug]
+      receivers: [docker_stats, http_check/frontend-proxy, host_metrics, nginx, otlp, redis, postgresql, prometheus/ad, span_metrics]
+      processors: [resource_detection, memory_limiter]
+      exporters: [debug]
     logs:
       receivers: [otlp]
-      processors: [resourcedetection, memory_limiter]
-      exporters: [opensearch, debug]
+      processors: [resource_detection, memory_limiter, transform/sanitize_logs]
+      exporters: [debug]
+    profiles:
+      receivers: [otlp]
+      processors: [resource_detection, filter/sanitize_profiles, memory_limiter]
+      exporters: [debug]
   telemetry:
     metrics:
-      level: detailed
       readers:
         - periodic:
-            interval: 10000
-            timeout: 5000
             exporter:
               otlp:
                 protocol: http/protobuf
+                # replace with your observability meta monitoring backend
+                endpoint: http://${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_PORT_HTTP}
+    logs:
+      processors:
+        - batch:
+            exporter:
+              otlp:
+                protocol: http/protobuf
+                # replace with your observability meta monitoring backend
                 endpoint: http://${env:OTEL_COLLECTOR_HOST}:${env:OTEL_COLLECTOR_PORT_HTTP}

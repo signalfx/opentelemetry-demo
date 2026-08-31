@@ -2,11 +2,20 @@
 // SPDX-License-Identifier: Apache-2.0
 using System;
 
+using Grpc.Health.V1;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using System.Threading.Tasks;
+using System.Threading;
+
+using Grpc.Core;
+
 using cart.cartstore;
 using cart.services;
+using cart.healthcheck;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
@@ -17,7 +26,8 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using OpenFeature;
 using OpenFeature.Hooks;
-using OpenFeature.Contrib.Providers.Flagd;
+using OpenFeature.Providers.Flagd;
+using OpenTelemetry.OpAmp.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 string valkeyAddress = builder.Configuration["VALKEY_ADDR"];
@@ -54,9 +64,11 @@ builder.Services.AddSingleton(x =>
 ));
 
 
+var serviceInstanceId = Guid.NewGuid().ToString();
+
 Action<ResourceBuilder> appResourceBuilder =
     resource => resource
-        .AddService(builder.Environment.ApplicationName)
+        .AddService(builder.Environment.ApplicationName, serviceInstanceId: serviceInstanceId)
         .AddContainerDetector()
         .AddHostDetector();
 
@@ -79,16 +91,42 @@ builder.Services.AddOpenTelemetry()
         .SetExemplarFilter(ExemplarFilterType.TraceBased)
         .AddOtlpExporter());
 builder.Services.AddGrpc();
+builder.Services.AddSingleton<readinessCheck>();
 builder.Services.AddGrpcHealthChecks()
-    .AddCheck("Sample", () => HealthCheckResult.Healthy());
+    .AddCheck<readinessCheck>("oteldemo.CartService");
+
+builder.Services.AddSingleton<HealthServiceImpl>();
 
 var app = builder.Build();
+
+OpAmpClient opAmpClient = null;
+var opampEndpoint = builder.Configuration["OPAMP_SERVER_ENDPOINT"];
+var opampSkipTlsCertificateVerification =
+    builder.Configuration.GetValue<bool>("OPAMP_SERVER_TLS_INSECURE_SKIP_VERIFY");
+if (!string.IsNullOrEmpty(opampEndpoint))
+{
+    var opAmpLogger = app.Services.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var opAmpResourceBuilder = ResourceBuilder.CreateDefault();
+        appResourceBuilder(opAmpResourceBuilder);
+        opAmpClient = await OpAmpClientSetup.StartAsync(
+            opampEndpoint,
+            opAmpResourceBuilder.Build(),
+            opampSkipTlsCertificateVerification);
+    }
+    catch (Exception ex)
+    {
+        opAmpLogger.LogWarning(ex, "Failed to start OpAMP client");
+        opAmpClient = null;
+    }
+}
 
 var ValkeyCartStore = (ValkeyCartStore)app.Services.GetRequiredService<ICartStore>();
 app.Services.GetRequiredService<StackExchangeRedisInstrumentation>().AddConnection(ValkeyCartStore.GetConnection());
 
 app.MapGrpcService<CartService>();
-app.MapGrpcHealthChecksService();
+app.MapGrpcService<HealthServiceImpl>();
 
 app.MapGet("/", async context =>
 {
@@ -96,3 +134,9 @@ app.MapGet("/", async context =>
 });
 
 app.Run();
+
+if (opAmpClient != null)
+{
+    await opAmpClient.StopAsync();
+    opAmpClient.Dispose();
+}
