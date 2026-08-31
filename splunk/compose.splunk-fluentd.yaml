@@ -1,0 +1,56 @@
+x-default-logging: &logging
+  driver: "fluentd"
+  options:
+    fluentd-address: "localhost:24224"
+    fluentd-async: "true"
+    fluentd-retry-wait: 1s
+    fluentd-max-retries: 10
+services:
+  # Patch otel-collector to use the Splunk distro
+  otel-collector:
+    image: quay.io/signalfx/splunk-otel-collector:latest
+    container_name: otel-collector
+    deploy:
+      resources:
+        limits:
+          memory: 200M
+    restart: unless-stopped
+    command: ["--config=/etc/otelcol-config.yml"]
+    user: 0:0
+    volumes:
+      - ${HOST_FILESYSTEM}:/hostfs:ro
+      - ${DOCKER_SOCK}:/var/run/docker.sock:ro
+      - ./splunk/otelcol-config-fluentd.yml:/etc/otelcol-config.yml
+      - ./logs:/logs
+      - ./checkpoint:/checkpoint
+    ports:
+      - "${OTEL_COLLECTOR_PORT_GRPC}"
+      - "${OTEL_COLLECTOR_PORT_HTTP}"
+      - "9464"
+      - "8888"
+      - "13133"
+      - "6060"
+      - "9080"
+      - "9411"
+      - "9943"
+      - "24224:24224"   # Fluentforward receiver
+    environment:
+      - AD_PROMETHEUS_PORT
+      - FRONTEND_PROXY_ADDR
+      - HOST_FILESYSTEM
+      - IMAGE_PROVIDER_HOST
+      - IMAGE_PROVIDER_PORT
+      - OTEL_COLLECTOR_HOST
+      - OTEL_COLLECTOR_PORT_GRPC
+      - OTEL_COLLECTOR_PORT_HTTP
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - POSTGRES_MONITORING_PASSWORD
+      - GOMEMLIMIT=160MiB
+      - SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}
+      - SPLUNK_REALM=${SPLUNK_REALM}
+      - SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}
+      - SPLUNK_HEC_URL=${SPLUNK_HEC_URL}
+      - SPLUNK_MEMORY_TOTAL_MIB=${SPLUNK_MEMORY_TOTAL_MIB}
+      - SPLUNK_LISTEN_INTERFACE=0.0.0.0
+      - SPLUNK_API_URL=https://api.${SPLUNK_REALM}.observability.splunkcloud.com

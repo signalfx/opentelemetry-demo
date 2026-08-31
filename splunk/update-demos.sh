@@ -36,60 +36,6 @@ folder.  See \[this document\](\.\/splunk\/README.md) for details.\
     echo "Completed updating the root README.md file for the OpenTelemetry demo app!"
 }
 
-function update_otel_demo_docker {
-    DOCKER_COMPOSE_PATH=${DOCKER_COMPOSE_PATH:-"$SCRIPT_DIR/../docker-compose.yml"}
-    SPLUNK_DOCKER_COMPOSE_PATH=${SPLUNK_DOCKER_COMPOSE_PATH:-"$SCRIPT_DIR/../splunk/docker-compose.yml"}
-
-    # delete any older versions of the Splunk Docker Compose file
-    [ -e "$SPLUNK_DOCKER_COMPOSE_PATH" ] && rm "$SPLUNK_DOCKER_COMPOSE_PATH"
-
-    # Download the YAML file
-    curl -L https://raw.githubusercontent.com/open-telemetry/opentelemetry-demo/main/docker-compose.yml \
-        > "$DOCKER_COMPOSE_PATH"
-
-    cp "$DOCKER_COMPOSE_PATH" "$SPLUNK_DOCKER_COMPOSE_PATH"
-
-    # delete containers that are not required
-    yq eval -i 'del(.services.grafana)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.jaeger)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.prometheus)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.opensearch)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.frontendTests)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.traceBasedTests)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.tracetest-server)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.tracetest-postgres)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.frontend-proxy.depends_on.jaeger)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.frontend-proxy.depends_on.grafana)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.otel-collector.depends_on)' "$SPLUNK_DOCKER_COMPOSE_PATH"
-
-    # replace the OpenTelemetry collector image with the Splunk distribution
-    yq eval -i '.services.otel-collector.image = "quay.io/signalfx/splunk-otel-collector:latest"' "$SPLUNK_DOCKER_COMPOSE_PATH"
-
-    # add environment variables required by the Splunk distro of the OpenTelemetry collector
-    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_REALM=${SPLUNK_REALM}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_HEC_TOKEN=${SPLUNK_HEC_TOKEN}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_HEC_URL=${SPLUNK_HEC_URL}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.environment += [ "SPLUNK_MEMORY_TOTAL_MIB=${SPLUNK_MEMORY_TOTAL_MIB}" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-
-    # update the command used to launch the collector to point to the Splunk-specific config
-    yq eval -i '.services.otel-collector.command[0] = "--config=/etc/otelcol-config.yml" ' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i 'del(.services.otel-collector.command[1])' "$SPLUNK_DOCKER_COMPOSE_PATH"
-
-    yq eval -i '.services.otel-collector.volumes = [ "./splunk/otelcol-config.yml:/etc/otelcol-config.yml", "./logs:/logs", "./checkpoint:/checkpoint" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-
-    # add ports used by the Splunk distro of the OpenTelemetry collector
-    yq eval -i '.services.otel-collector.ports += [ "9464" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.ports += [ "8888" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.ports += [ "13133" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.ports += [ "6060" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.ports += [ "9080" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.ports += [ "9411" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-    yq eval -i '.services.otel-collector.ports += [ "9943" ]' "$SPLUNK_DOCKER_COMPOSE_PATH"
-
-    echo "Completed updating docker-compose.yml for the OpenTelemetry demo app!"
-}
-
 function update_otel_demo_k8s {
     K8S_PATH=${K8S_PATH:-"$SCRIPT_DIR/../kubernetes/opentelemetry-demo.yaml"}
     SPLUNK_K8S_PATH=${SPLUNK_K8S_PATH:-"$SCRIPT_DIR/../splunk/opentelemetry-demo.yaml"}
@@ -190,5 +136,4 @@ function update_otel_demo_k8s {
 
 # ---- OpenTelemetry Demo Update ----
 update_root_readme
-update_otel_demo_docker
 update_otel_demo_k8s
