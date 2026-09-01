@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=./values.schema.json
+default:
+  # List of environment variables applied to all components
+  env:
+    - name: OTEL_SERVICE_NAME
+      valueFrom:
+        fieldRef:
+          apiVersion: v1
+          fieldPath: "metadata.labels['app.kubernetes.io/component']"
+    # Ensure services report telemetry to the collector running on the same node
+    - name: OTEL_COLLECTOR_NAME
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    - name: OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE
+      value: cumulative
+    - name: OTEL_RESOURCE_ATTRIBUTES
+      value: service.version={{ .Chart.AppVersion }},deployment.environment=development
+
+components:
+  telemetry-docs:
+    enabled: false
+  opamp-server:
+    enabled: false
+  firepit:
+    enabled: false
+
+opentelemetry-collector:
+  enabled: false
+jaeger:
+  enabled: false
+prometheus:
+  enabled: false
+grafana:
+  enabled: false
+opensearch:
+  enabled: false
