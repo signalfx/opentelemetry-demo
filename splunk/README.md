@@ -7,11 +7,10 @@ distributed system intended to illustrate the implementation of OpenTelemetry in
 a near real-world environment. It includes customizations for use with Splunk
 Observability Cloud.
 
-## Update Kubernetes Scripts
+## Update README
 
 After synchronizing changes with the upstream repository, the following
-command can be used to update the Splunk versions of the kubernetes/opentelemetry-demo.yaml files, 
-which are optimized for use with Splunk Observability Cloud:
+command can be used to update the README file:
 
 ```bash
 ./update-demos.sh
